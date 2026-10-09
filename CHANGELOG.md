@@ -3,6 +3,15 @@
 All notable changes to **Neon Waves** (repo: `wave-dash`).
 All changes so far are **local only** (`C:\temp\wave-dash`), not committed or pushed.
 
+## [2.5.0] - 2026-10-09 - Bigger arena, elites, drones
+### Changed
+- **Arena enlarged** from 960×600 to 1200×750 (about 56% more space). The view zooms out to fit; the HUD keeps its layout. Asteroid Field now has 10 rocks, and the Collapsing Arena starts and ends larger.
+- **Elites are easy to spot and dangerous:** at least one in every normal wave from wave 3 (about 2 per 50 enemies), 65% bigger, pulsing gold aura, dashed gold ring, "ELITE" tag, and a gold halo in 3D. Contact damage doubled; elite gunners fire bigger gold shots that hit harder.
+- **Orbiting Blade → Orbiting Drones:** the drones now look like small drones and also **destroy enemy shots** that touch them.
+- Banner text is larger to match the bigger arena.
+### Fixed
+- The weakest enemies (Chasers and Splitlings) now show a health bar when damaged, like all other enemies.
+
 ## [2.4.0] - 2026-10-09 - Boss phase cinematics and damaged forms
 ### Added
 - **Phase-change cinematic** (about 2.3 s, skippable after a moment with Space/click): the game pauses, the camera zooms on the boss, it shakes and sparks under a "⚠ CORE UNSTABLE ⚠" warning, then bursts into its new form with a shockwave and the phase name.
