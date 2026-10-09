@@ -439,7 +439,7 @@ function reset(){
 }
 function runName(){return (gmode=='story'?'Story':'Endless')+' · '+D.n+' · '+SHIP.n+(modI?' · '+G.n:'')}
 function bestLine(){return best.w?'Best run: wave <b>'+best.w+'</b> · most kills <b>'+best.k+'</b> · longest <b>'+fmt(best.t)+'</b>':''}
-function lockText(){return beaten<0?'Finish the story to unlock Endless mode and run modifiers.':beaten<1?'Finish the story on Normal to unlock Hard.':''}
+function lockText(){return beaten<0?'Finish the story to unlock Endless mode.':beaten<1?'Finish the story on Normal to unlock Hard.':''}
 function showTitle(){
   if(document.activeElement)document.activeElement.blur();
   mode='menu';sel.style.display='none';$('win').style.display='none';shop.style.display='none';ov.style.display='flex';
@@ -460,9 +460,9 @@ function renderSel(){
   /* Hard is always shown; while locked it only shows a hover tip and can't be picked */
   DIFFS.forEach((q,i)=>{const b=document.createElement('button'),lk=i==2&&beaten<1;b.className=(i==diffI?'on':'')+(lk?' lockd':'');b.textContent=(lk?'🔒 ':'')+q.n;
     if(lk){b.dataset.tip='You must finish the game on Normal difficulty';b.setAttribute('aria-disabled','true');b.onclick=()=>sfx('lock')}else b.onclick=()=>{diffI=i;sfx('click');renderSel()};dd.appendChild(b)});
-  /* run modifiers stay hidden until the story has been finished once */
-  const md=$('mods');md.innerHTML='<b>MODIFIER</b>';md.style.display=beaten<0?'none':'';if(beaten<0)modI=0;
-  if(beaten>=0)MODS.forEach((m,i)=>{const b=document.createElement('button');b.className=i==modI?'on':'';b.textContent=m.n;b.onclick=()=>{modI=i;sfx('click');renderSel()};md.appendChild(b)});
+  /* run modifiers are always available */
+  const md=$('mods');md.innerHTML='<b>MODIFIER</b>';md.style.display='';
+  MODS.forEach((m,i)=>{const b=document.createElement('button');b.className=i==modI?'on':'';b.textContent=m.n;b.onclick=()=>{modI=i;sfx('click');renderSel()};md.appendChild(b)});
   $('selh').textContent=gmode=='story'?'Choose your ship':'Endless · Choose your ship';
   $('modd').textContent=DIFFS[diffI].d+(modI?' · '+MODS[modI].n+': '+MODS[modI].d:'');
 }
@@ -1122,7 +1122,7 @@ addEventListener('keydown',e=>{
   }
   if(mode=='select'&&!e.repeat){
     if(c=='Digit1'||c=='Numpad1'){shipI=0;sfx('click');renderSel()}if(c=='Digit2'||c=='Numpad2'){shipI=1;sfx('click');renderSel()}if(c=='Digit3'||c=='Numpad3'){shipI=2;sfx('click');renderSel()}
-    if(c=='Tab'&&beaten>=0){e.preventDefault();modI=(modI+(e.shiftKey?MODS.length-1:1))%MODS.length;sfx('click');renderSel()}
+    if(c=='Tab'){e.preventDefault();modI=(modI+(e.shiftKey?MODS.length-1:1))%MODS.length;sfx('click');renderSel()}
     if(c=='KeyD'){diffI=(diffI+1)%(beaten>=1?3:2);sfx('click');renderSel()}
     if(c=='Escape'){showTitle();return}
     if(c=='Enter'||c=='Space'){e.preventDefault();start()}
