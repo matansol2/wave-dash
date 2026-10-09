@@ -81,7 +81,7 @@ button:disabled{opacity:.35;cursor:default}
 <div class="ov" id="set" style="display:none"><h2>⚙ Settings</h2><div id="sbox"></div><p class="hint">Shortcuts in game: M sound · N music · G graphics · K screen shake</p><button id="sback" class="small">Back</button></div>
 <div id="toasts"></div>
 <div class="ov" id="win" style="display:none"><h1>Victory!</h1><p id="wm"></p><div class="row"><button id="wEnd">Continue in Endless</button><button id="wNew"></button><button id="wMenu" class="small">Main Menu</button></div></div>
-<div class="ov" id="shop" style="display:none"><h2 id="sh">Shop</h2><div id="mny"></div><p id="int" class="hint"></p><details id="sd"><summary>Your stats</summary><div id="stats"></div></details><div id="opts" class="cards"></div><p class="hint">Keys 1 / 2 / 3 to buy · R to reroll · Enter to continue</p><div id="shb"><button id="rrb"></button><button id="go"></button></div></div>
+<div class="ov" id="shop" style="display:none"><h2 id="sh">Shop</h2><div id="mny"></div><p id="int" class="hint"></p><details id="sd"><summary>Your stats</summary><div id="stats"></div></details><div id="opts" class="cards"></div><p class="hint">Keys 1 / 2 / 3 to buy · R to reroll · Enter to continue · Q quit to menu</p><div id="shb"><button id="rrb"></button><button id="go"></button></div></div>
 </div>
 <script>
 const cv=document.getElementById('c'),x=cv.getContext('2d'),W=1200,H=750,HW=960,HS=W/HW,HUDH=64*HS,TAU=Math.PI*2;
@@ -1034,7 +1034,7 @@ function drawTail(va){
     if(mode=='clear'&&cin)drawCin();
     if(mode=='intro'&&bossIntro)drawIntro();
     if(mode=='phasecin'&&pcin)drawPhaseCin();
-    if(mode=='pause'){x.fillStyle='rgba(0,0,0,.55)';x.fillRect(0,0,W,H);x.fillStyle='#fff';x.textAlign='center';x.font='800 48px Rubik,system-ui,sans-serif';x.fillText('Paused',W/2,H/2);x.font='600 20px Rubik,system-ui,sans-serif';x.fillText('Press P or click to continue · M sound · N music · G 3D/2D · K screen shake',W/2,H/2+40)}
+    if(mode=='pause'){x.fillStyle='rgba(0,0,0,.55)';x.fillRect(0,0,W,H);x.fillStyle='#fff';x.textAlign='center';x.font='800 48px Rubik,system-ui,sans-serif';x.fillText('Paused',W/2,H/2);x.font='600 20px Rubik,system-ui,sans-serif';x.fillText('Press P or click to continue · Q quit to menu · M sound · N music · G 3D/2D · K screen shake',W/2,H/2+40)}
   }
 }
 /* with the WebGL renderer on, the 2D canvas only draws flat markers on top of the 3D arena */
@@ -1133,6 +1133,7 @@ addEventListener('keydown',e=>{
   }
   if((c=='Enter'||c=='Space')&&(mode=='menu'||mode=='dead')&&ov.style.display!='none'){e.preventDefault();openSelect(mode=='menu'?'story':0)}
   if(c=='Escape'||c=='KeyP'){if(mode=='play')mode='pause';else if(mode=='pause')mode='play'}
+  if((mode=='pause'||mode=='shop'||mode=='intro'||mode=='phasecin')&&c=='KeyQ'&&!e.repeat){firing=false;mouseHeld=false;bossIntro=null;pcin=null;cin=null;showTitle();return}
 });
 addEventListener('keyup',e=>{if(KM[e.code])keys[KM[e.code]]=0});
 addEventListener('blur',()=>{keys={};firing=false;mouseHeld=false;if(mode=='play')mode='pause'});
