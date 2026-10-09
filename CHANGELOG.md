@@ -3,6 +3,27 @@
 All notable changes to **Neon Waves** (repo: `wave-dash`).
 All changes so far are **local only** (`C:\temp\wave-dash`), not committed or pushed.
 
+## [2.4.0] - 2026-10-09 - Boss phase cinematics and damaged forms
+### Added
+- **Phase-change cinematic** (about 2.3 s, skippable after a moment with Space/click): the game pauses, the camera zooms on the boss, it shakes and sparks under a "⚠ CORE UNSTABLE ⚠" warning, then bursts into its new form with a shockwave and the phase name.
+- **Damaged boss forms** in 3D and 2D: bosses are built from an inner housing plus a ring of armor plates. Plates break off and fly away as debris at each phase (25% / 50% / 75% gone), glowing cracks spread, the core grows and heats up (white → orange → white-hot), and a red aura pulses in the last stand.
+- **New guns per phase:** 2, then 4, then 6 rotating gun barrels appear on the boss.
+### Changed
+- Phase effects (Hive Queen guards, Neon Tyrant teleport) now happen at the moment of transformation.
+
+## [2.3.2] - 2026-10-09 - Locked Hard option
+### Changed
+- **Hard** is always shown on the ship screen. While locked it is greyed out with a 🔒, can't be selected, and hovering it shows "You must finish the game on Normal difficulty".
+
+## [2.3.1] - 2026-10-09 - Polish
+### Fixed
+- **Flicker on normal kills:** the kill screen-shake moved the camera so the glowing arena border slid in and out of view, which looked like the lights flickering. Normal kills no longer shake the screen; elites and bosses still do. The border now sits slightly inside the arena so shakes can't hide it.
+- Title menu labels now line up (icons sit in a fixed-width column).
+### Changed
+- Normal kills show a local "pop" instead: an expanding ring in the enemy's color plus white sparks.
+- Hit flash on enemies is softer, so the screen doesn't pulse brighter on every hit.
+- Health packs glow much less.
+
 ## [2.3.0] - 2026-10-09 - Title menu and settings
 ### Added
 - **Main menu** on the title screen: Start Game, Endless (once unlocked), Achievements, Settings, Exit Game.
