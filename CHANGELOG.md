@@ -1,7 +1,16 @@
 # Changelog
 
 All notable changes to **Neon Waves** (repo: `wave-dash`).
-All changes so far are **local only** (`C:\temp\wave-dash`), not committed or pushed.
+
+## [2.5.1] - 2026-10-09 - Faster waves, easier Easy, fixes
+### Changed
+- **Easy is easier, Normal slightly softer:** Easy enemies have less HP, deal less damage, come in smaller waves and fire slower (+10% money kept). Normal is ~5% softer.
+- **No black screen between waves:** the wave-clear cinematic is skipped, the shop opens instantly with a transparent overlay and only a 0.3s click lock; next wave starts ~0.4s after leaving the shop.
+- **Heal packs:** green packs heal 10 (was 5), max 4 per wave and 2 on screen.
+- **Run modifiers always visible** (no story unlock needed); Swarm is 40% more enemies with +20% money; Bullet Hell is +15% money (was +25%).
+- **Less ship glow:** flatter ship cards, smaller in-game aura and engine flame, dimmer 3D edges and halo; Hard lock tooltip is fully opaque.
+### Fixed
+- Holding the mouse now keeps firing across waves, shops and boss cinematics.
 
 ## [2.5.0] - 2026-10-09 - Bigger arena, elites, drones
 ### Changed

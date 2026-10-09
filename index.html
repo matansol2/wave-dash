@@ -94,7 +94,7 @@ let best={w:+ls('waves-best')||0,k:+ls('waves-bestk')||0,t:+ls('waves-bestt')||0
 let shipI=Math.min(2,+ls('waves-ship')||0),modI=Math.min(3,+ls('waves-mod')||0),muted=ls('waves-mute')=='1',musicOn=ls('waves-music')!='0';
 /* beaten = highest difficulty index on which the 20-wave story was finished (-1 = never) */
 let beaten=ls('waves-cleared')==null?-1:+ls('waves-cleared'),diffI=Math.min(ls('waves-diff')==null?1:+ls('waves-diff'),beaten>=1?2:1),gmode='story',cin=null,shopReady=0,wStart={m:0,k:0};
-const STORY_WAVES=20,VERSION='2.5.0';
+const STORY_WAVES=20,VERSION='2.5.1';
 let sfxVol=ls('waves-sfxvol')==null?.8:+ls('waves-sfxvol'),musVol=ls('waves-musvol')==null?.7:+ls('waves-musvol');
 const DIFFS=[
  {n:'Easy',d:'Much weaker, slower enemies in smaller waves. +10% money.',hp:.6,dm:.55,cnt:.7,mm:1.1,efr:1.5},
