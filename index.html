@@ -620,11 +620,13 @@ const intAmt=()=>Math.min(Math.floor(money*.1),20+wave*5);
 function cleared(){
   const boss=wave%5==0,it=pendInt;pendInt=0;money+=it;
   if(it>0&&++R.interest>=5)ach('saver');if(R.waveHits==0&&wave>=3)ach('cleanwave');if(R.low)medal('close');if(wave>=10&&R.bought==0)ach('miser');if(gmode=='endless'&&wave>=30)ach('void30');saveMeta();
-  gain(10+wave*3);heal(8+S.rec);sk=[];eb=[];lava=[];firing=false;
-  for(const g of gm)if(!g.pack)g.m=1;
-  /* level-finish cinematic: letterbox, slow fireworks and a wave summary before the shop opens */
-  cin={t:0,dur:boss?230:150,boss:boss,earn:money-wStart.m,it:it,k:kills-wStart.k,fin:gmode=='story'&&wave==STORY_WAVES};
-  mode='clear';sfx(boss?'bossdown':'clear');if(boss)shake=20;
+  gain(10+wave*3);heal(8+S.rec);sk=[];eb=[];lava=[];firing=false;mouseHeld=false;
+  /* no black screen between waves: collect drops instantly and go straight to shop/victory */
+  for(const g of gm)if(!g.pack){heal(g.v);g.t=1}
+  gm=gm.filter(g=>!g.t);
+  const fin=gmode=='story'&&wave==STORY_WAVES;
+  sfx(boss?'bossdown':'clear');if(boss)shake=20;
+  if(fin)victory();else openShop();
 }
 function updCin(d){
   cin.t+=d;t+=d*.5;
