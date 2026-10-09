@@ -612,10 +612,10 @@ function reroll(){if(mode!='shop'||shopLocked())return;if(money<rrCost){flashMsg
 /* the shop ignores clicks and keys for a moment after it opens, so a held click or key can't buy or skip by mistake */
 function openShop(){
   if(document.activeElement)document.activeElement.blur();
-  mode='shop';rrCost=15;shopBought=false;rollShop(wave==1);shopReady=performance.now()+1000;shop.classList.add('locked');renderShop();shop.style.display='flex';firing=false;
-  setTimeout(()=>shop.classList.remove('locked'),1000);
+  mode='shop';rrCost=15;shopBought=false;rollShop(wave==1);shopReady=performance.now()+300;shop.classList.add('locked');renderShop();shop.style.display='flex';firing=false;
+  setTimeout(()=>shop.classList.remove('locked'),300);
 }
-function closeShop(){if(mode!='shop')return;if(shopLocked()){sfx('lock');return}if(document.activeElement)document.activeElement.blur();pendInt=shopBought?0:intAmt();if(shopBought)R.skip=0;else if(++R.skip>=3)medal('nobuy');shop.style.display='none';mode='play';phase='break';brk=90;P.inv=60;sfx('click');if(mouseHeld)firing=true}
+function closeShop(){if(mode!='shop')return;if(shopLocked()){sfx('lock');return}if(document.activeElement)document.activeElement.blur();pendInt=shopBought?0:intAmt();if(shopBought)R.skip=0;else if(++R.skip>=3)medal('nobuy');shop.style.display='none';mode='play';phase='break';brk=25;P.inv=60;sfx('click');if(mouseHeld)firing=true}
 const intAmt=()=>Math.min(Math.floor(money*.1),20+wave*5);
 function cleared(){
   const boss=wave%5==0,it=pendInt;pendInt=0;money+=it;
