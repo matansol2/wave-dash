@@ -505,7 +505,7 @@ function startWave(){
   queue=[];for(let i=0;i<n;i++)queue.push(wpick());
   /* elites: about 2 per 50 enemies in normal waves (never in boss waves) */
   if(!boss&&wave>=3){const ne=Math.max(1,Math.round(n/25));for(let k=0;k<ne;k++){const i=Math.floor(Math.random()*n);if(typeof queue[i]=='number'&&queue[i]!=7)queue[i]={ty:queue[i]}}}
-  if(boss)queue.unshift(bt);wtot=queue.length;R.waveHits=0;R.dashKW=0;R.low=false;
+  if(boss)queue.unshift(bt);wtot=queue.length;R.waveHits=0;R.dashKW=0;R.low=false;healT=600;healN=0;
   phase='fight';spT=40;sfx(boss?'boss':'wave');wStart={m:money,k:kills};
   const fin=gmode=='story'&&wave==STORY_WAVES;
   if(boss){spT=25;banner=null;return}
