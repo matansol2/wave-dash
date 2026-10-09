@@ -29,7 +29,7 @@ button:disabled{opacity:.35;cursor:default}
 .locked{pointer-events:none;filter:grayscale(.6) brightness(.7)}
 #mny{font-size:clamp(20px,2.6vw,28px);font-weight:800;color:#7cff6b;text-shadow:0 0 14px #7cff6b}
 .cards{display:flex;gap:16px;width:90%;justify-content:center}
-.cards .card{flex:1 1 0;max-width:250px;padding:16px 10px;border-color:var(--rc);background:rgba(10,8,30,.8);box-shadow:0 0 10px var(--rc),inset 0 0 8px rgba(255,255,255,.03);display:flex;flex-direction:column;gap:8px;align-items:center}
+.cards .card{flex:1 1 0;max-width:250px;padding:16px 10px;border:1px solid var(--rc);background:rgba(10,8,30,.85);box-shadow:none;display:flex;flex-direction:column;gap:8px;align-items:center}
 .cards .card i{font-style:normal;font-size:13px;color:var(--rc);letter-spacing:1px}
 .cards .card b{font-size:clamp(16px,1.9vw,21px)}
 .cards .card small{font-weight:400;opacity:.9;font-size:clamp(12px,1.4vw,15px);min-height:2.6em}
@@ -119,7 +119,7 @@ const SHIPS=[
 /* run modifiers picked on the ship screen */
 const MODS=[
  {n:'Standard',d:'The normal game.',hpm:1,dmm:1,enm:1,mm:1,efr:1},
- {n:'Swarm',d:'60% more enemies per wave.',hpm:1,dmm:1,enm:1.6,mm:1,efr:1},
+ {n:'Swarm',d:'60% more enemies per wave, +20% money.',hpm:1,dmm:1,enm:1.6,mm:1.2,efr:1},
  {n:'Glass Cannon',d:'Half max HP, double damage.',hpm:.5,dmm:2,enm:1,mm:1,efr:1},
  {n:'Bullet Hell',d:'Enemies shoot 50% more often, 25% more money.',hpm:1,dmm:1,enm:1,mm:1.25,efr:.67}
 ];
@@ -986,12 +986,12 @@ function draw(){
     if(mode!='dead'){
       if(mode=='play'){x.globalAlpha=.16;x.strokeStyle='#fff';x.lineWidth=1.5;x.beginPath();x.moveTo(P.x,P.y);x.lineTo(P.x+Math.cos(P.aim)*280,P.y+Math.sin(P.aim)*280);x.stroke();x.globalAlpha=1}
       const blink=P.inv>0&&Math.floor(P.inv/4)%2,mv=keys.l||keys.r||keys.u||keys.d,sc=SHIP.c;
-      x.globalCompositeOperation='lighter';glow(P.x,P.y,42,sc,.35);if(P.act>0&&SHIP.id=='striker')glow(P.x,P.y,70,sc,.2+.1*Math.sin(t*.4));x.globalCompositeOperation='source-over';
-      if(P.act>0&&SHIP.id=='bulwark'){x.globalAlpha=.18;x.fillStyle=sc;x.beginPath();x.arc(P.x,P.y,36,0,TAU);x.fill();x.globalAlpha=.6+.3*Math.sin(t*.5);x.strokeStyle=sc;x.lineWidth=3;x.stroke();x.globalAlpha=1}
+      x.globalCompositeOperation='lighter';glow(P.x,P.y,26,sc,.16);if(P.act>0&&SHIP.id=='striker')glow(P.x,P.y,50,sc,.1+.05*Math.sin(t*.4));x.globalCompositeOperation='source-over';
+      if(P.act>0&&SHIP.id=='bulwark'){x.globalAlpha=.1;x.fillStyle=sc;x.beginPath();x.arc(P.x,P.y,36,0,TAU);x.fill();x.globalAlpha=.3+.15*Math.sin(t*.5);x.strokeStyle=sc;x.lineWidth=2;x.stroke();x.globalAlpha=1}
       x.save();x.translate(P.x,P.y);x.rotate(P.aim);
-      if(mv){x.globalCompositeOperation='lighter';glow(-20,0,14+Math.random()*5,'#ffb347',.95);glow(-30,0,10,'#ff6b3d',.6);x.globalCompositeOperation='source-over'}
+      if(mv){x.globalCompositeOperation='lighter';glow(-20,0,10+Math.random()*3,'#ffb347',.45);glow(-30,0,7,'#ff6b3d',.3);x.globalCompositeOperation='source-over'}
       x.fillStyle=blink?'#fff':shipGrad(SHIP);x.strokeStyle=sc;x.lineJoin='round';
-      shipPath(SHIP.id);x.fill();x.save();x.globalAlpha=.15;x.lineWidth=6;x.stroke();x.restore();x.lineWidth=2.5;x.stroke();
+      shipPath(SHIP.id);x.fill();x.lineWidth=2;x.stroke();
       x.fillStyle='#fff';x.beginPath();x.arc(2,0,4,0,TAU);x.fill();
       x.restore();
       if(P.inv>0){x.strokeStyle=`rgba(255,255,255,${Math.min(1,P.inv/20)*.45})`;x.lineWidth=2;x.beginPath();x.arc(P.x,P.y,27,0,TAU);x.stroke()}
@@ -1234,12 +1234,12 @@ function shipMesh(sh){
   const s=new THREE.Shape();HULL[sh.id].forEach(([a,b],i)=>i?s.lineTo(a,-b):s.moveTo(a,-b));s.closePath();
   const geo=new THREE.ExtrudeGeometry(s,{depth:5,bevelEnabled:true,bevelThickness:2.5,bevelSize:1.6,bevelSegments:3});
   const g=new THREE.Group();
-  const body=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:0x2c3a58,metalness:.85,roughness:.25,emissive:C(sh.c),emissiveIntensity:.14}));body.castShadow=true;g.add(body);
-  g.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo,30),new THREE.LineBasicMaterial({color:C(sh.c,2.4)})));
-  const pit=new THREE.Mesh(new THREE.SphereGeometry(3.6,16,10),new THREE.MeshBasicMaterial({color:C('#ffffff',2.2)}));pit.position.set(3,0,8);g.add(pit);
-  const fl=new THREE.Mesh(new THREE.ConeGeometry(4.5,18,14),new THREE.MeshBasicMaterial({color:C('#ffa040',3),transparent:true,opacity:.9,blending:THREE.AdditiveBlending,depthWrite:false}));
+  const body=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:0x2c3a58,metalness:.85,roughness:.25,emissive:C(sh.c),emissiveIntensity:.07}));body.castShadow=true;g.add(body);
+  g.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo,30),new THREE.LineBasicMaterial({color:C(sh.c,1.2)})));
+  const pit=new THREE.Mesh(new THREE.SphereGeometry(3.6,16,10),new THREE.MeshBasicMaterial({color:C('#ffffff',1.4)}));pit.position.set(3,0,8);g.add(pit);
+  const fl=new THREE.Mesh(new THREE.ConeGeometry(4.5,18,14),new THREE.MeshBasicMaterial({color:C('#ffa040',2),transparent:true,opacity:.55,blending:THREE.AdditiveBlending,depthWrite:false}));
   fl.rotation.z=Math.PI/2;fl.position.set(-20,0,4);g.add(fl);g.userData.fl=fl;
-  const sh2=new THREE.Mesh(new THREE.SphereGeometry(36,32,16),new THREE.MeshBasicMaterial({color:C(sh.c,1.1),transparent:true,opacity:.09,blending:THREE.AdditiveBlending,depthWrite:false}));g.add(sh2);g.userData.sh=sh2;
+  const sh2=new THREE.Mesh(new THREE.SphereGeometry(36,32,16),new THREE.MeshBasicMaterial({color:C(sh.c,1),transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));g.add(sh2);g.userData.sh=sh2;
   g.visible=false;scene.add(g);return ships[sh.id]=g;
 }
 
