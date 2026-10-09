@@ -3,6 +3,18 @@
 All notable changes to **Neon Waves** (repo: `wave-dash`).
 All changes so far are **local only** (`C:\temp\wave-dash`), not committed or pushed.
 
+## [2.2.0] - 2026-10-09 - Bosses, elites, juice and goals
+### Added
+- **Boss phases** at 70%, 40% and 10% HP for all 4 bosses, each with new attacks (faster rings, more beams, royal guards, bullet streams, Tyrant teleports). A big hit can't skip a phase; a short invulnerable moment and a "Phase 2 / Phase 3 / Last Stand" banner mark each change. Ticks on the HUD boss bar show the thresholds.
+- **Elite enemies** in normal waves (about 2 per 50 enemies, from wave 3, never in boss waves): 2.6x HP, bigger, gold ring and ★, +50% contact damage, 1.6x money. Elite gunners fire 3-way shots; elite splitters split into 3.
+- **Cinematic boss intro:** letterbox, warning, camera zoom on the boss, name and subtitle, music dips. Space/click skips.
+- **Visual juice:** screen shake scales with what exploded; brief hit-stop on elite kills, boss phases and boss kills; soft flash on critical hits; WebGL shockwave ripple with color split around big explosions.
+- **Achievements** (17, saved forever) with a list screen on the title.
+- **Run rating** Bronze, Silver, Gold, S, SS, SSS from progress, damage taken, accuracy and speed, shown on victory and death screens.
+- **Secret medals** (9 hidden goals inside a run), shown as toasts and on the end screen.
+- **Enemy Codex:** each enemy unlocks an entry (what it does, strength, how to beat it, times defeated) once defeated.
+- **K** toggles screen shake.
+
 ## [2.0.0] - 2026-10-09 - GPU graphics
 ### Added
 - WebGL renderer (Three.js 0.160.0 from the jsDelivr CDN), so the game draws on the graphics card.
