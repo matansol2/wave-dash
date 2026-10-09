@@ -3,6 +3,15 @@
 All notable changes to **Neon Waves** (repo: `wave-dash`).
 All changes so far are **local only** (`C:\temp\wave-dash`), not committed or pushed.
 
+## [2.3.0] - 2026-10-09 - Title menu and settings
+### Added
+- **Main menu** on the title screen: Start Game, Endless (once unlocked), Achievements, Settings, Exit Game.
+- **Settings screen:** sound on/off, effects volume, music on/off, music volume, screen shake, graphics 3D/2D. All saved.
+- **Exit Game:** closes the window when the browser allows it, otherwise shows a "Thanks for playing" screen.
+- **Version number** (`Neon Waves v2.3.0`) at the bottom of the title screen only.
+### Changed
+- Achievements and Enemy Codex now share one screen with two tabs.
+
 ## [2.2.0] - 2026-10-09 - Bosses, elites, juice and goals
 ### Added
 - **Boss phases** at 70%, 40% and 10% HP for all 4 bosses, each with new attacks (faster rings, more beams, royal guards, bullet streams, Tyrant teleports). A big hit can't skip a phase; a short invulnerable moment and a "Phase 2 / Phase 3 / Last Stand" banner mark each change. Ticks on the HUD boss bar show the thresholds.

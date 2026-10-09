@@ -59,14 +59,21 @@ button:disabled{opacity:.35;cursor:default}
 .toast.med{border-color:#00e5ff;box-shadow:0 0 18px rgba(0,229,255,.45)}
 @keyframes tin{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
 .grade{font-family:Orbitron,Rubik,sans-serif;font-weight:800;font-size:1.3em}
+.menu{display:flex;flex-direction:column;gap:10px;width:min(320px,60%)}.menu button{width:100%;text-align:left;padding:11px 24px}
+#ver{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:12px;opacity:.45;letter-spacing:1px}
+#itabs button.on{background:rgba(0,229,255,.45)}
+#sbox{display:flex;flex-direction:column;gap:10px;width:min(460px,80%)}
+.srow{display:flex;align-items:center;justify-content:space-between;gap:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 14px;font-size:15px}
+.srow .ctl{display:flex;align-items:center;gap:10px}.srow button{font-size:14px;padding:5px 14px;min-width:70px}.srow input[type=range]{width:130px;accent-color:#00e5ff}
 </style>
 </head>
 <body>
 <div id="wrap">
 <canvas id="c" width="960" height="664"></canvas>
-<div class="ov" id="ov"><h1 id="t">Neon Waves</h1><p id="m">Survive waves of neon enemies. Every kill earns money; spend it on upgrades between waves. Beat 4 bosses to win.</p><p class="hint">WASD move · Mouse aim · Hold click shoot · Space dash · E ability · P pause · M sound</p><p id="bl"></p><div class="row" id="tbtn"><button id="b">Play</button><button id="be">Endless</button></div><div class="row" id="dbtn" style="display:none"><button id="br">Play Again</button><button id="bm">Main Menu</button></div><div class="row small"><button id="bach" class="small">🏆 Achievements</button><button id="bcod" class="small">📖 Codex</button></div><p id="lk" class="hint" style="opacity:.6;font-size:13px"></p></div>
+<div class="ov" id="ov"><h1 id="t">Neon Waves</h1><p id="m">Survive waves of neon enemies. Every kill earns money; spend it on upgrades between waves. Beat 4 bosses to win.</p><p class="hint">WASD move · Mouse aim · Hold click shoot · Space dash · E ability · P pause · M sound</p><p id="bl"></p><div class="menu" id="tbtn"><button id="b">▶ Start Game</button><button id="be">∞ Endless</button><button id="bach">🏆 Achievements</button><button id="bset">⚙ Settings</button><button id="bex">⏻ Exit Game</button></div><div class="row" id="dbtn" style="display:none"><button id="br">Play Again</button><button id="bm">Main Menu</button></div><p id="lk" class="hint" style="opacity:.6;font-size:13px"></p><div id="ver"></div></div>
 <div class="ov" id="sel" style="display:none"><h2 id="selh">Choose your ship</h2><div id="ships" class="cards"></div><div class="row pick small" id="diffs"></div><div class="row pick small" id="mods"></div><p id="modd" class="hint"></p><p class="hint">Click a ship (or 1 / 2 / 3), then Launch (Enter)</p><div class="row"><button id="back" class="small">Back</button><button id="launch">Launch</button></div></div>
-<div class="ov" id="info" style="display:none"><h2 id="ih"></h2><p id="isub" class="hint"></p><div id="ib"></div><button id="iback" class="small">Back</button></div>
+<div class="ov" id="info" style="display:none"><h2 id="ih"></h2><div class="row small" id="itabs"><button id="tach">🏆 Achievements</button><button id="tcod">📖 Enemy Codex</button></div><p id="isub" class="hint"></p><div id="ib"></div><button id="iback" class="small">Back</button></div>
+<div class="ov" id="set" style="display:none"><h2>⚙ Settings</h2><div id="sbox"></div><p class="hint">Shortcuts in game: M sound · N music · G graphics · K screen shake</p><button id="sback" class="small">Back</button></div>
 <div id="toasts"></div>
 <div class="ov" id="win" style="display:none"><h1>Victory!</h1><p id="wm"></p><div class="row"><button id="wEnd">Continue in Endless</button><button id="wNew"></button><button id="wMenu" class="small">Main Menu</button></div></div>
 <div class="ov" id="shop" style="display:none"><h2 id="sh">Shop</h2><div id="mny"></div><p id="int" class="hint"></p><details id="sd"><summary>Your stats</summary><div id="stats"></div></details><div id="opts" class="cards"></div><p class="hint">Keys 1 / 2 / 3 to buy · R to reroll · Enter to continue</p><div id="shb"><button id="rrb"></button><button id="go"></button></div></div>
@@ -82,7 +89,8 @@ let best={w:+ls('waves-best')||0,k:+ls('waves-bestk')||0,t:+ls('waves-bestt')||0
 let shipI=Math.min(2,+ls('waves-ship')||0),modI=Math.min(3,+ls('waves-mod')||0),muted=ls('waves-mute')=='1',musicOn=ls('waves-music')!='0';
 /* beaten = highest difficulty index on which the 20-wave story was finished (-1 = never) */
 let beaten=ls('waves-cleared')==null?-1:+ls('waves-cleared'),diffI=Math.min(ls('waves-diff')==null?1:+ls('waves-diff'),beaten>=1?2:1),gmode='story',cin=null,shopReady=0,wStart={m:0,k:0};
-const STORY_WAVES=20;
+const STORY_WAVES=20,VERSION='2.3.0';
+let sfxVol=ls('waves-sfxvol')==null?.8:+ls('waves-sfxvol'),musVol=ls('waves-musvol')==null?.7:+ls('waves-musvol');
 const DIFFS=[
  {n:'Easy',d:'Weaker enemies that hit softer.',hp:.75,dm:.7,cnt:.85,mm:1,efr:1.2},
  {n:'Normal',d:'The intended challenge.',hp:1,dm:1,cnt:1,mm:1,efr:1},
@@ -168,7 +176,30 @@ function rating(){
 }
 function ratingHTML(){const r=rating();if(r.g=='SSS')ach('sss');const md=Object.keys(R.med||{}).map(k=>MEDALS[k][0]);
   return '<br>Rating: <span class="grade" style="color:'+r.c+'">'+r.g+'</span> ('+r.sc+'/100) · accuracy '+r.acc+'% · damage taken '+Math.round(R.dmg)+(md.length?'<br>🎖 Medals: '+md.join(', '):'')}
-function showInfo(kind){
+function showSettings(){ov.style.display='none';$('set').style.display='flex';renderSet()}
+function renderSet(){
+  const on=v=>v?'On':'Off',gl=!!window.R3&&!R3.failed;
+  const rows=[
+    ['🔊 Sound','<button data-k="snd">'+on(!muted)+'</button>'],
+    ['💥 Effects volume','<input type="range" min="0" max="100" value="'+Math.round(sfxVol*100)+'" data-k="sfx">'],
+    ['🎵 Music','<button data-k="mus">'+on(musicOn)+'</button>'],
+    ['🎚 Music volume','<input type="range" min="0" max="100" value="'+Math.round(musVol*100)+'" data-k="musv">'],
+    ['📳 Screen shake','<button data-k="shk">'+on(shakeOn)+'</button>'],
+    ['🖥 Graphics','<button data-k="gfx"'+(gl?'':' disabled')+'>'+(gl?(R3.on?'3D':'2D'):'2D only')+'</button>']];
+  $('sbox').innerHTML=rows.map(r=>'<div class="srow"><span>'+r[0]+'</span><span class="ctl">'+r[1]+'</span></div>').join('');
+  $('sbox').querySelectorAll('button').forEach(b=>b.onclick=()=>{au();const k=b.dataset.k;
+    if(k=='snd'){muted=!muted;ls('waves-mute',muted?'1':'0')}
+    if(k=='mus'){musicOn=!musicOn;ls('waves-music',musicOn?'1':'0')}
+    if(k=='shk'){shakeOn=!shakeOn;ls('waves-shake',shakeOn?'1':'0')}
+    if(k=='gfx'&&window.R3)R3.toggle();
+    setVol();sfx('click');renderSet()});
+  $('sbox').querySelectorAll('input').forEach(i=>i.oninput=()=>{au();const v=i.value/100;
+    if(i.dataset.k=='sfx'){sfxVol=v;ls('waves-sfxvol',v)}else{musVol=v;ls('waves-musvol',v)}setVol()});
+  $('sbox').querySelectorAll('input').forEach(i=>i.onchange=()=>sfx('click'));
+}
+/* browsers only let a page close a window it opened itself, so if closing fails we show a goodbye screen */
+function exitGame(){sfx('click');try{window.close()}catch(e){}setTimeout(()=>{ov.style.display='none';$('info').style.display='flex';$('itabs').style.display='none';$('ih').textContent='Thanks for playing!';$('isub').textContent='You can close this browser tab now.';$('ib').innerHTML=''},200)}
+function showInfo(kind){$('itabs').style.display='';$('tach').className=kind=='ach'?'on':'';$('tcod').className=kind=='ach'?'':'on';
   ov.style.display='none';$('info').style.display='flex';const ib=$('ib');
   if(kind=='ach'){const n=ACHS.filter(a=>ACH[a[0]]).length;$('ih').textContent='🏆 Achievements';$('isub').textContent=n+' / '+ACHS.length+' unlocked';
     ib.innerHTML=ACHS.map(a=>'<div class="it'+(ACH[a[0]]?'':' lock')+'"><b>'+(ACH[a[0]]?'🏆 ':'🔒 ')+a[1]+'</b>'+a[2]+'</div>').join('')+
@@ -241,13 +272,13 @@ function au(){
     const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=5200;lp.connect(OUT);
     const dl=AC.createDelay(),fb=AC.createGain(),wet=AC.createGain();dl.delayTime.value=.19;fb.gain.value=.28;wet.gain.value=.22;
     dl.connect(fb);fb.connect(dl);dl.connect(wet);wet.connect(lp);
-    FX=AC.createGain();FX.connect(lp);FX.connect(dl);
-    MUS=AC.createGain();MUS.gain.value=musicOn?.55:0;MUS.connect(lp);MUS.connect(dl);
+    FX=AC.createGain();FX.gain.value=sfxVol;FX.connect(lp);FX.connect(dl);
+    MUS=AC.createGain();MUS.gain.value=musicOn?.75*musVol:0;MUS.connect(lp);MUS.connect(dl);
     NZ=AC.createBuffer(1,AC.sampleRate*.6,AC.sampleRate);const ch=NZ.getChannelData(0);for(let i=0;i<ch.length;i++)ch[i]=Math.random()*2-1;
   }catch(e){AC=null}}
   if(AC&&AC.state=='suspended')AC.resume();
 }
-function setVol(){if(!AC)return;OUT.gain.setTargetAtTime(muted?0:.9,AC.currentTime,.05);MUS.gain.setTargetAtTime(musicOn?.55:0,AC.currentTime,.1)}
+function setVol(){if(!AC)return;OUT.gain.setTargetAtTime(muted?0:.9,AC.currentTime,.05);FX.gain.setTargetAtTime(sfxVol,AC.currentTime,.05);MUS.gain.setTargetAtTime(musicOn?.75*musVol:0,AC.currentTime,.1)}
 function tone(f,dur,ty,vol,f2,dl,dest){const n=AC.currentTime+(dl||0),o=AC.createOscillator(),g=AC.createGain();o.type=ty;o.frequency.setValueAtTime(f,n);if(f2)o.frequency.exponentialRampToValueAtTime(f2,n+dur);g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(vol,n+.008);g.gain.exponentialRampToValueAtTime(.0001,n+dur);o.connect(g);g.connect(dest||FX);o.start(n);o.stop(n+dur+.03)}
 function noise(dur,vol,f1,f2,dl){const n=AC.currentTime+(dl||0),s=AC.createBufferSource(),b=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NZ;b.type='lowpass';b.frequency.setValueAtTime(f1,n);b.frequency.exponentialRampToValueAtTime(f2||80,n+dur);g.gain.setValueAtTime(vol,n);g.gain.exponentialRampToValueAtTime(.0001,n+dur);s.connect(b);b.connect(g);g.connect(FX);s.start(n);s.stop(n+dur)}
 const mtof=m=>440*Math.pow(2,(m-69)/12);
@@ -373,6 +404,7 @@ function showTitle(){
   mode='menu';sel.style.display='none';$('win').style.display='none';shop.style.display='none';ov.style.display='flex';
   $('t').textContent='Neon Waves';$('m').innerHTML=MENU_TXT;$('bl').innerHTML=bestLine();
   $('tbtn').style.display='flex';$('dbtn').style.display='none';$('be').style.display=beaten<0?'none':'';$('lk').textContent=lockText();
+  $('ver').textContent='Neon Waves v'+VERSION;$('ver').style.display='';$('set').style.display='none';$('info').style.display='none';
 }
 function openSelect(gm){if(gm)gmode=gm;if(gmode=='endless'&&beaten<0)gmode='story';if(document.activeElement)document.activeElement.blur();mode='select';ov.style.display='none';$('win').style.display='none';sel.style.display='flex';sfx('click');renderSel()}
 function renderSel(){
@@ -401,7 +433,7 @@ function die(){
   saveMeta();
   $('m').innerHTML=runName()+'<br>You reached wave <b>'+wave+'</b>'+(gmode=='story'?' of '+STORY_WAVES:'')+' · '+kills+' kills · '+fmt(sec)+ratingHTML();
   $('bl').innerHTML=bestLine();$('lk').textContent='';
-  $('tbtn').style.display='none';$('dbtn').style.display='flex';
+  $('tbtn').style.display='none';$('dbtn').style.display='flex';$('ver').style.display='none';
   setTimeout(()=>{if(mode=='dead')ov.style.display='flex'},1100);
 }
 function victory(){
@@ -1040,7 +1072,8 @@ $('launch').onclick=start;rrb.onclick=reroll;goB.onclick=closeShop;
 $('wEnd').onclick=()=>{if(mode!='win')return;gmode='endless';$('win').style.display='none';banner={t:'Endless Mode',s:'How far can you go?',a:2};openShop()};
 $('wNew').onclick=()=>{diffI=Math.min(2,diffI+1);openSelect('story')};
 $('wMenu').onclick=showTitle;
-$('bach').onclick=()=>showInfo('ach');$('bcod').onclick=()=>showInfo('cdx');$('iback').onclick=()=>{$('info').style.display='none';ov.style.display='flex'};
+$('bach').onclick=()=>{au();sfx('click');showInfo('ach')};$('tach').onclick=()=>showInfo('ach');$('tcod').onclick=()=>showInfo('cdx');
+$('bset').onclick=()=>{au();sfx('click');showSettings()};$('sback').onclick=()=>{$('set').style.display='none';ov.style.display='flex'};$('bex').onclick=exitGame;$('iback').onclick=()=>{$('info').style.display='none';ov.style.display='flex'};
 reset();showTitle();banner=null;
 requestAnimationFrame(loop);
 </script>
