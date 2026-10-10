@@ -132,11 +132,11 @@ function earnShards(win){const b=R.bosses||0;let s=1+Math.floor(wave/4)+Math.flo
 function metaBoxHTML(got){
   const sk=SKINS.map(q=>{const own=(META.owned||[]).includes(q.id),on=META.skin==q.id;
     const lbl=on?q.n+' ✓':own?q.n:'🔒 '+q.n+' ('+q.cost+'✦)';
-    const tip=on?q.n+' is equipped (color only, no stats)':own?'Click to fly in '+q.n+' (color only, no stats)':'LOCKED: finish runs to earn ✦ shards (waves + kills + bosses + victories, plus rare gold tokens in game). '+q.n+' costs '+q.cost+'✦ — buy it here';
+    const tip=on?q.n+' is equipped (color only, no stats)':own?'Click to fly in '+q.n+' (color only, no stats)':'LOCKED: finish runs to earn ✦. '+q.n+' costs '+q.cost+'✦ — buy it here';
     return '<button class="small" data-skin="'+q.id+'"'+(on?' disabled':'')+(q.c?' style="border-color:'+q.c+'"':'')+' data-tip="'+tip+'">'+lbl+'</button>'}).join('');
   const pk=PERKS.map(q=>{const lv=(META.perks||{})[q.id]||0,mx=lv>=q.max;
     const lbl=mx?q.n+' MAX':(lv>0?q.n+' '+lv+'/'+q.max+' ('+q.cost[lv]+'✦)':'🔒 '+q.n+' ('+q.cost[0]+'✦)');
-    const tip=mx?q.n+' is maxed ('+q.d+' × '+q.max+')':q.d+', level '+(lv+1)+' of '+q.max+'. Costs '+q.cost[lv]+'✦ — earn shards by finishing runs (waves + kills + bosses + victories)';
+    const tip=mx?q.n+' is maxed ('+q.d+' × '+q.max+')':q.d+' ('+(lv+1)+'/'+q.max+'). Costs '+q.cost[lv]+'✦ — finish runs to earn ✦';
     return '<button class="small" data-perk="'+q.id+'"'+(mx?' disabled':'')+' data-tip="'+tip+'">'+lbl+'</button>'}).join('');
   return '<div id="metabox" style="display:flex;flex-direction:column;gap:8px;align-items:center;max-width:94%"><div style="font-size:17px">✦ <b>'+META.sh+'</b> shards'+(got?' <span style="color:#7cff6b">(+'+got+' this run)</span>':'')+'</div><div class="hint" style="font-size:12px;opacity:.7">Earn ✦ by finishing runs: waves + kills + bosses + victories (Harder = more)</div><div style="font-size:13px;letter-spacing:1px;opacity:.8"><b>SHIP SKIN</b> — color only</div><div class="row small">'+sk+'</div><div style="font-size:13px;letter-spacing:1px;opacity:.8"><b>FOREVER UPGRADES</b> — tiny, work every run</div><div class="row small">'+pk+'</div></div>';
 }
@@ -523,7 +523,7 @@ function renderSel(){
   const kd=$('skins');kd.innerHTML='<b>SKIN</b>';
   SKINS.forEach(q=>{const own=(META.owned||[]).includes(q.id),on=META.skin==q.id;
     const b=document.createElement('button');b.className=on?'on':'';if(q.c)b.style.setProperty('--rc',q.c);
-    b.textContent=on?q.n+' ✓':own?q.n:'🔒 '+q.n+' '+q.cost+'✦';b.dataset.tip=own?(on?q.n+' is equipped (color only)':'Equip '+q.n+' (color only)'):'LOCKED: '+q.n+' costs '+q.cost+'✦ — finish runs to earn shards, then buy it on the end-of-run screen';
+    b.textContent=on?q.n+' ✓':own?q.n:'🔒 '+q.n+' '+q.cost+'✦';b.dataset.tip=own?(on?q.n+' is equipped (color only)':'Equip '+q.n+' (color only)'):'LOCKED: finish runs to earn ✦. '+q.n+' costs '+q.cost+'✦ — buy it on the end-of-run screen';
     b.onclick=()=>{if(!(META.owned||[]).includes(q.id)){sfx('lock');return}META.skin=q.id;saveMetaAll();sfx('click');renderSel()};kd.appendChild(b)});
   renderSelShards();
   $('selh').textContent=gmode=='story'?'Choose your ship':'Endless · Choose your ship';
