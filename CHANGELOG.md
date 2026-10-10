@@ -2,7 +2,13 @@
 
 All notable changes to **Neon Waves** (repo: `wave-dash`).
 
-## [2.5.1] - 2026-10-09 - Faster waves, easier Easy, fixes
+## [2.6.0] - 2026-10-10 - Difficulty curve, distinct bosses, meta progression
+### Changed
+- **Difficulty curve follows progress:** enemy HP ramps gently in waves 1–9 and steeper later; damage taken uses a gentler early exponent and a steeper late one.
+- **Endless gets really hard:** extra enemy HP multiplier past wave 20, faster spawning and airstrikes, and bosses gain HP, bullet damage, extra beams/minions per cycle.
+- **Bosses feel different:** Overmind sprays many weak bullets and chasers; Laser Warden is slower with longer telegraphs but deadly beams (nerfed: weaker beams/shots, less contact damage and HP); Hive Queen fires faster weak spirals with bigger swarms; Neon Tyrant hits hardest (stronger rings, shots and beams, more HP).
+### Added
+- **Meta progression (first step):** every run earns permanent ✦ shards (more for waves, kills, bosses and victories, scaled by difficulty). Spend them on end-of-run screens on visual-only ship skins and tiny permanent perks (+max HP, +speed, +starting money, max 3 levels each). No new ships or modifiers, prices keep it slow.
 ### Changed
 - **Easy is easier, Normal slightly softer:** Easy enemies have less HP, deal less damage, come in smaller waves and fire slower (+10% money kept). Normal is ~5% softer.
 - **No black screen between waves:** the wave-clear cinematic is skipped, the shop opens instantly with a transparent overlay and only a 0.3s click lock; next wave starts ~0.4s after leaving the shop.
