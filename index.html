@@ -1284,7 +1284,7 @@ addEventListener('keydown',e=>{
   if((c=='Space'||c=='Enter')&&!e.repeat&&skipCin())e.preventDefault();
   if(c=='KeyN'&&!e.repeat){musicOn=!musicOn;ls('waves-music',musicOn?'1':'0');setVol()}
   if(mode=='play'&&(c=='Space'||c=='ShiftLeft'||c=='ShiftRight')){keys.dash=1;e.preventDefault()}
-  if(mode=='play'&&(c=='KeyE'||c=='KeyQ'))keys.abil=1;
+  if(mode=='play'&&c=='KeyE')keys.abil=1;
   if(mode=='shop'&&!e.repeat){
     if(c=='Digit1'||c=='Numpad1')buy(0);if(c=='Digit2'||c=='Numpad2')buy(1);if(c=='Digit3'||c=='Numpad3')buy(2);
     if(c=='KeyR')reroll();if(c=='Enter'){e.preventDefault();closeShop()}
@@ -1305,7 +1305,7 @@ addEventListener('keyup',e=>{if(KM[e.code])keys[KM[e.code]]=0});
 addEventListener('blur',()=>{keys={};firing=false;mouseHeld=false;if(mode=='play')mode='pause'});
 function mpos(e){const r=cv.getBoundingClientRect();mx=(e.clientX-r.left)/r.width*W;my=(e.clientY-r.top)/r.height*(H+HUDH)-HUDH}
 cv.addEventListener('pointermove',e=>{mpos(e);if((e.buttons&1)&&mode=='play'){mouseHeld=true;firing=true}});
-cv.addEventListener('pointerdown',e=>{au();mpos(e);if(e.button==0){mouseHeld=true;if(skipCin()){if(mode=='play')firing=true;return}if(mode=='pause'){mode='play';firing=true}else firing=true}else if(e.button==2&&mode=='play')keys.abil=1});
+cv.addEventListener('pointerdown',e=>{au();mpos(e);if(e.button==0){mouseHeld=true;if(skipCin()){if(mode=='play')firing=true;return}if(mode=='pause'){mode='play';firing=true}else firing=true}});
 addEventListener('pointerup',e=>{if(e.button==0){firing=false;mouseHeld=false}});
 addEventListener('pointercancel',()=>{firing=false;mouseHeld=false});
 cv.addEventListener('contextmenu',e=>e.preventDefault());
