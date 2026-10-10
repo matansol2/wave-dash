@@ -526,7 +526,10 @@ function renderSel(){
     if(lk){b.dataset.tip='You must finish the game on Normal difficulty';b.setAttribute('aria-disabled','true');b.onclick=()=>sfx('lock')}else b.onclick=()=>{diffI=i;sfx('click');renderSel()};dd.appendChild(b)});
   /* run modifiers are always available */
   const md=$('mods');md.innerHTML='<b>MODIFIER</b>';md.style.display='';
-  MODS.forEach((m,i)=>{const b=document.createElement('button');b.className=i==modI?'on':'';b.textContent=m.n;b.dataset.tip=m.n+': '+m.d;b.onclick=()=>{modI=i;sfx('click');renderSel()};md.appendChild(b)});
+  MODS.forEach((m,i)=>{const b=document.createElement('button');b.className=i==modI?'on':'';b.textContent=m.n;
+    let tip=m.n+': '+m.d;
+    if(diffI==0){const tot=Math.round((DIFFS[0].mm*m.mm-1)*100);tip+=' + Easy: weaker enemies, +'+tot+'% money total'}
+    b.dataset.tip=tip;b.onclick=()=>{modI=i;sfx('click');renderSel()};md.appendChild(b)});
   /* owned skins can be equipped here; new ones are bought on the end-of-run screens */
   const kd=$('skins');kd.innerHTML='<b>SKIN</b>';
   SKINS.forEach(q=>{const own=(META.owned||[]).includes(q.id),on=META.skin==q.id;
