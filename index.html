@@ -46,9 +46,9 @@ button:disabled{opacity:.35;cursor:default}
 .row.pick button.lockd:hover{transform:none;background:linear-gradient(180deg,rgba(90,90,120,.28),rgba(40,40,60,.16));box-shadow:none}
 .row.pick button.lockd:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);white-space:nowrap;background:#0c0822;border:1px solid #ffd23f;color:#ffd23f;font-size:13px;font-weight:600;padding:6px 12px;border-radius:10px;pointer-events:none;z-index:10;opacity:1;box-shadow:0 4px 18px rgba(0,0,0,.9)}
 /* same yellow tooltip box for skins and meta buttons */
-#skins.row.pick button{opacity:1}
-#skins button[data-tip],#metabox button[data-tip]{position:relative}
-#skins button[data-tip]:hover::after,#metabox button[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:max-content;max-width:260px;white-space:normal;text-align:center;background:#0c0822;border:1px solid #ffd23f;color:#ffd23f;font-size:13px;font-weight:600;padding:6px 12px;border-radius:10px;pointer-events:none;z-index:10;opacity:1;box-shadow:0 4px 18px rgba(0,0,0,.9)}
+#skins.row.pick button,#mods.row.pick button{opacity:1}
+#skins button[data-tip],#metabox button[data-tip],#mods button[data-tip]{position:relative}
+#skins button[data-tip]:hover::after,#metabox button[data-tip]:hover::after,#mods button[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:max-content;max-width:260px;white-space:normal;text-align:center;background:#0c0822;border:1px solid #ffd23f;color:#ffd23f;font-size:13px;font-weight:600;padding:6px 12px;border-radius:10px;pointer-events:none;z-index:10;opacity:1;box-shadow:0 4px 18px rgba(0,0,0,.9)}
 #sel,#shop{gap:10px}
 #shop{background:rgba(5,3,18,.82);backdrop-filter:none;-webkit-backdrop-filter:none}
 #sel .hint,#shop .hint{font-size:clamp(12px,1.3vw,14px);opacity:.7}
@@ -526,7 +526,7 @@ function renderSel(){
     if(lk){b.dataset.tip='You must finish the game on Normal difficulty';b.setAttribute('aria-disabled','true');b.onclick=()=>sfx('lock')}else b.onclick=()=>{diffI=i;sfx('click');renderSel()};dd.appendChild(b)});
   /* run modifiers are always available */
   const md=$('mods');md.innerHTML='<b>MODIFIER</b>';md.style.display='';
-  MODS.forEach((m,i)=>{const b=document.createElement('button');b.className=i==modI?'on':'';b.textContent=m.n;b.onclick=()=>{modI=i;sfx('click');renderSel()};md.appendChild(b)});
+  MODS.forEach((m,i)=>{const b=document.createElement('button');b.className=i==modI?'on':'';b.textContent=m.n;b.dataset.tip=m.n+': '+m.d;b.onclick=()=>{modI=i;sfx('click');renderSel()};md.appendChild(b)});
   /* owned skins can be equipped here; new ones are bought on the end-of-run screens */
   const kd=$('skins');kd.innerHTML='<b>SKIN</b>';
   SKINS.forEach(q=>{const own=(META.owned||[]).includes(q.id),on=META.skin==q.id;
