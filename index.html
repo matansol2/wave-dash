@@ -45,6 +45,9 @@ button:disabled{opacity:.35;cursor:default}
 .row.pick button.lockd{cursor:not-allowed;position:relative;color:rgba(255,255,255,.55);border-color:rgba(255,255,255,.25);background:linear-gradient(180deg,rgba(90,90,120,.22),rgba(40,40,60,.12));box-shadow:none;filter:none;opacity:1}
 .row.pick button.lockd:hover{transform:none;background:linear-gradient(180deg,rgba(90,90,120,.28),rgba(40,40,60,.16));box-shadow:none}
 .row.pick button.lockd:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);white-space:nowrap;background:#0c0822;border:1px solid #ffd23f;color:#ffd23f;font-size:13px;font-weight:600;padding:6px 12px;border-radius:10px;pointer-events:none;z-index:10;opacity:1;box-shadow:0 4px 18px rgba(0,0,0,.9)}
+/* same yellow tooltip box for skins and meta buttons */
+#skins button[data-tip],#metabox button[data-tip]{position:relative}
+#skins button[data-tip]:hover::after,#metabox button[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:max-content;max-width:260px;white-space:normal;text-align:center;background:#0c0822;border:1px solid #ffd23f;color:#ffd23f;font-size:13px;font-weight:600;padding:6px 12px;border-radius:10px;pointer-events:none;z-index:10;opacity:1;box-shadow:0 4px 18px rgba(0,0,0,.9)}
 #sel,#shop{gap:10px}
 #shop{background:rgba(5,3,18,.82);backdrop-filter:none;-webkit-backdrop-filter:none}
 #sel .hint,#shop .hint{font-size:clamp(12px,1.3vw,14px);opacity:.7}
@@ -129,11 +132,11 @@ function metaBoxHTML(got){
   const sk=SKINS.map(q=>{const own=(META.owned||[]).includes(q.id),on=META.skin==q.id;
     const lbl=on?q.n+' ✓':own?q.n:'🔒 '+q.n+' ('+q.cost+'✦)';
     const tip=on?q.n+' is equipped (color only, no stats)':own?'Click to fly in '+q.n+' (color only, no stats)':'LOCKED: finish runs to earn ✦ shards (waves + kills + bosses + victories, plus rare gold tokens in game). '+q.n+' costs '+q.cost+'✦ — buy it here';
-    return '<button class="small" data-skin="'+q.id+'"'+(on?' disabled':'')+(q.c?' style="border-color:'+q.c+'"':'')+' title="'+tip+'">'+lbl+'</button>'}).join('');
+    return '<button class="small" data-skin="'+q.id+'"'+(on?' disabled':'')+(q.c?' style="border-color:'+q.c+'"':'')+' data-tip="'+tip+'">'+lbl+'</button>'}).join('');
   const pk=PERKS.map(q=>{const lv=(META.perks||{})[q.id]||0,mx=lv>=q.max;
     const lbl=mx?q.n+' MAX':(lv>0?q.n+' '+lv+'/'+q.max+' ('+q.cost[lv]+'✦)':'🔒 '+q.n+' ('+q.cost[0]+'✦)');
     const tip=mx?q.n+' is maxed ('+q.d+' × '+q.max+')':q.d+', level '+(lv+1)+' of '+q.max+'. Costs '+q.cost[lv]+'✦ — earn shards by finishing runs (waves + kills + bosses + victories)';
-    return '<button class="small" data-perk="'+q.id+'"'+(mx?' disabled':'')+' title="'+tip+'">'+lbl+'</button>'}).join('');
+    return '<button class="small" data-perk="'+q.id+'"'+(mx?' disabled':'')+' data-tip="'+tip+'">'+lbl+'</button>'}).join('');
   return '<div id="metabox" style="display:flex;flex-direction:column;gap:8px;align-items:center;max-width:94%"><div style="font-size:17px">✦ <b>'+META.sh+'</b> shards'+(got?' <span style="color:#7cff6b">(+'+got+' this run)</span>':'')+'</div><div class="hint" style="font-size:12px;opacity:.7">Earn ✦ by finishing runs: waves + kills + bosses + victories (Harder = more)</div><div style="font-size:13px;letter-spacing:1px;opacity:.8"><b>SHIP SKIN</b> — color only</div><div class="row small">'+sk+'</div><div style="font-size:13px;letter-spacing:1px;opacity:.8"><b>FOREVER UPGRADES</b> — tiny, work every run</div><div class="row small">'+pk+'</div></div>';
 }
 function wireMeta(){
@@ -519,7 +522,7 @@ function renderSel(){
   const kd=$('skins');kd.innerHTML='<b>SKIN</b>';
   SKINS.forEach(q=>{const own=(META.owned||[]).includes(q.id),on=META.skin==q.id;
     const b=document.createElement('button');b.className=on?'on':'';if(q.c)b.style.setProperty('--rc',q.c);
-    b.textContent=on?q.n+' ✓':own?q.n:'🔒 '+q.n+' '+q.cost+'✦';b.title=own?(on?q.n+' is equipped (color only)':'Equip '+q.n+' (color only)'):'LOCKED: '+q.n+' costs '+q.cost+'✦ — finish runs to earn shards, then buy it on the end-of-run screen';
+    b.textContent=on?q.n+' ✓':own?q.n:'🔒 '+q.n+' '+q.cost+'✦';b.dataset.tip=own?(on?q.n+' is equipped (color only)':'Equip '+q.n+' (color only)'):'LOCKED: '+q.n+' costs '+q.cost+'✦ — finish runs to earn shards, then buy it on the end-of-run screen';
     b.onclick=()=>{if(!(META.owned||[]).includes(q.id)){sfx('lock');return}META.skin=q.id;saveMetaAll();sfx('click');renderSel()};kd.appendChild(b)});
   renderSelShards();
   $('selh').textContent=gmode=='story'?'Choose your ship':'Endless · Choose your ship';
