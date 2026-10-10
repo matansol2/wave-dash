@@ -131,7 +131,8 @@ function saveMetaAll(){saveMeta();ls('waves-meta',JSON.stringify(META))}
 function earnShards(win){const b=R.bosses||0;let s=1+Math.floor(wave/4)+Math.floor(kills/300)+b*2+(win?5:0);s=Math.max(1,Math.round(s*[.75,1,1.25][diffI]));META.sh+=s;saveMetaAll();return s}
 function metaBoxHTML(got){
   const sk=SKINS.map(q=>{const own=(META.owned||[]).includes(q.id),on=META.skin==q.id;
-    const lbl=on?q.n+' ✓':own?q.n:'🔒 '+q.n+' ('+q.cost+'✦)';
+    const dot='<i style=\'font-style:normal;color:'+(q.c||'#c9d1d9')+'\'>●</i> ';
+    const lbl=dot+(on?q.n+' ✓':own?q.n:'🔒 '+q.n+' ('+q.cost+'✦)');
     const tip=on?q.n+' is equipped (color only, no stats)':own?'Click to fly in '+q.n+' (color only, no stats)':'LOCKED: finish runs to earn ✦. '+q.n+' costs '+q.cost+'✦ — buy it here';
     return '<button class="small" data-skin="'+q.id+'"'+(on?' disabled':'')+(q.c?' style="border-color:'+q.c+'"':'')+' data-tip="'+tip+'">'+lbl+'</button>'}).join('');
   const pk=PERKS.map(q=>{const lv=(META.perks||{})[q.id]||0,mx=lv>=q.max;
@@ -522,8 +523,9 @@ function renderSel(){
   /* owned skins can be equipped here; new ones are bought on the end-of-run screens */
   const kd=$('skins');kd.innerHTML='<b>SKIN</b>';
   SKINS.forEach(q=>{const own=(META.owned||[]).includes(q.id),on=META.skin==q.id;
+    const dot='<i style="font-style:normal;color:'+(q.c||'#c9d1d9')+'">●</i> ';
     const b=document.createElement('button');b.className=on?'on':'';if(q.c)b.style.setProperty('--rc',q.c);
-    b.textContent=on?q.n+' ✓':own?q.n:'🔒 '+q.n+' '+q.cost+'✦';b.dataset.tip=own?(on?q.n+' is equipped (color only)':'Equip '+q.n+' (color only)'):'LOCKED: finish runs to earn ✦. '+q.n+' costs '+q.cost+'✦ — buy it on the end-of-run screen';
+    b.innerHTML=dot+(on?q.n+' ✓':own?q.n:'🔒 '+q.n+' '+q.cost+'✦');b.dataset.tip=own?(on?q.n+' is equipped (color only)':'Equip '+q.n+' (color only)'):'LOCKED: finish runs to earn ✦. '+q.n+' costs '+q.cost+'✦ — buy it on the end-of-run screen';
     b.onclick=()=>{if(!(META.owned||[]).includes(q.id)){sfx('lock');return}META.skin=q.id;saveMetaAll();sfx('click');renderSel()};kd.appendChild(b)});
   renderSelShards();
   $('selh').textContent=gmode=='story'?'Choose your ship':'Endless · Choose your ship';
