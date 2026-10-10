@@ -1013,10 +1013,27 @@ function shipPath(id,c){c=c||x;c.beginPath();
  else{c.moveTo(19,0);c.lineTo(-14,-14);c.lineTo(-7,0);c.lineTo(-14,14)}
  c.closePath();
 }
-/* extra ship styling per skin: fins, blades, stripes, lights. Drawn after the hull. */
+/* glass canopy with shine */
+function shipCanopy(c,cock,R){
+ const g=c.createLinearGradient(0,-R,0,R);g.addColorStop(0,'#ffffff');g.addColorStop(.45,cock);g.addColorStop(1,'#0a1428');
+ c.fillStyle=g;c.beginPath();c.ellipse(2,0,R+2.5,R,0,0,TAU);c.fill();
+ c.fillStyle='rgba(255,255,255,.85)';c.beginPath();c.arc(0,-R*.35,Math.max(1,R*.28),0,TAU);c.fill();
+}
+/* extra ship styling per skin: fins, blades, stripes, lights, panel lines, engine pods. Drawn after the hull. */
 function shipDeco(c,shipId,sk,edge){
- const shape=(sk&&sk.shape)||'std';
- c.save();c.lineJoin='round';
+ const shape=(sk&&sk.shape)||'std',acc=sk&&sk.stripe,cock=(sk&&sk.cock)||'#fff',flame=(sk&&sk.flame)||'#ffb347';
+ c.save();c.lineJoin='round';c.lineCap='round';
+ /* panel lines */
+ c.globalAlpha=.4;c.strokeStyle='rgba(2,6,18,.9)';c.lineWidth=1;
+ for(const s of [-1,1]){c.beginPath();c.moveTo(6,-2*s);c.lineTo(-8,-6.5*s);c.stroke()}
+ /* nose light */
+ c.globalAlpha=1;c.fillStyle='#fff';c.beginPath();c.arc(19,0,1.6,0,TAU);c.fill();
+ /* engine pods with flame dots */
+ for(const s of [-1,1]){
+  c.globalAlpha=.95;c.fillStyle='#0a1226';c.strokeStyle=edge;c.lineWidth=1.4;
+  c.beginPath();c.arc(-11,6.5*s,2.6,0,TAU);c.fill();c.stroke();
+  c.globalAlpha=1;c.fillStyle=flame;c.beginPath();c.arc(-11,6.5*s,1.2,0,TAU);c.fill();
+ }
  if(shape=='viper'||shape=='fang'){
   c.globalAlpha=.6;c.fillStyle=edge;c.strokeStyle=edge;c.lineWidth=2;
   for(const s of [-1,1]){
@@ -1026,7 +1043,7 @@ function shipDeco(c,shipId,sk,edge){
    c.closePath();c.fill();c.stroke();
   }
   /* tip lights */
-  c.globalAlpha=1;c.fillStyle=(sk&&sk.cock)||'#fff';
+  c.globalAlpha=1;c.fillStyle=cock;
   for(const s of [-1,1]){c.beginPath();c.arc(shape=='viper'?-21:-15,(shape=='viper'?-11.5:-12.5)*s,2.2,0,TAU);c.fill()}
  }
  if(sk&&sk.stripe&&(shape=='viper'||shape=='solar'||shape=='fang')){
@@ -1034,11 +1051,13 @@ function shipDeco(c,shipId,sk,edge){
   c.beginPath();c.moveTo(14,0);c.lineTo(-10,0);c.stroke();
  }
  if(shape=='solar'){
-  /* sun dots on the wings + halo ring around the cockpit */
+  /* sun dots on the wings + halo ring around the cockpit + gold nose trim */
   c.globalAlpha=1;c.fillStyle=sk.stripe||edge;
   for(const s of [-1,1]){c.beginPath();c.arc(-12,12.5*s,2.6,0,TAU);c.fill()}
   c.globalAlpha=.8;c.strokeStyle=sk.stripe||edge;c.lineWidth=1.6;
   c.beginPath();c.arc(2,0,8,0,TAU);c.stroke();
+  c.globalAlpha=.9;c.lineWidth=2;
+  for(const s of [-1,1]){c.beginPath();c.moveTo(16,-2*s);c.lineTo(7,-7*s);c.stroke()}
  }
  if(shape=='ghost'){
   /* thin inner light line along the hull */
@@ -1056,7 +1075,7 @@ function skinPreview(cv2,shipId,sk,baseC){
  const gr=g.createLinearGradient(-16,0,20,0);gr.addColorStop(0,'#081428');gr.addColorStop(.55,hull);gr.addColorStop(1,edge);
  shipPath(shipId,g);g.fillStyle=gr;g.fill();g.lineWidth=2.5;g.strokeStyle=edge;g.stroke();
  shipDeco(g,shipId,sk,edge);
- g.fillStyle=sk.cock||'#fff';g.beginPath();g.arc(2,0,sk.cockR||4,0,TAU);g.fill();
+ shipCanopy(g,sk.cock||'#fff',sk.cockR||4);
  g.restore();
 }
 function draw(){
@@ -1128,7 +1147,8 @@ function draw(){
       const _gh=(SHIP.shape||'std')=='ghost'&&!blink;if(_gh){x.save();x.globalAlpha=.85}
       shipPath(SHIP.id);x.fill();x.lineWidth=2;x.stroke();
       shipDeco(x,SHIP.id,SHIP,sc);
-      x.fillStyle=SHIP.cock||'#fff';x.beginPath();x.arc(2,0,SHIP.cockR||4,0,TAU);x.fill();
+      if(!blink)shipCanopy(x,SHIP.cock||'#fff',SHIP.cockR||4);
+      else{x.fillStyle='#fff';x.beginPath();x.arc(2,0,SHIP.cockR||4,0,TAU);x.fill()}
       if(_gh){x.restore()}
       x.restore();
       if(P.inv>0){x.strokeStyle=`rgba(255,255,255,${Math.min(1,P.inv/20)*.45})`;x.lineWidth=2;x.beginPath();x.arc(P.x,P.y,27,0,TAU);x.stroke()}
