@@ -114,11 +114,11 @@ let ACH=lj('waves-ach',{}),CODEX=lj('waves-codex',{}),LIFE=lj('waves-life',{elit
 /* meta progression: permanent shards earned after each run, spent on ship skins (visual only)
    and tiny permanent perks. No new ships or modifiers here, and everything stays small on purpose. */
 const SKINS=[
- {id:'default',n:'Classic',c:null,hull:null,cock:null,cockR:0,flame:null,shape:'std',stripe:null,d:'Stock look',cost:0},
- {id:'mint',n:'Mint Viper',c:'#3dffb0',hull:'#14584a',cock:'#eafff5',cockR:4,flame:'#3dffb0',shape:'viper',stripe:'#d6ffe9',d:'Twin tail fins, stripe and tip lights',cost:20},
- {id:'rose',n:'Rose Fang',c:'#ff6b9d',hull:'#5c1633',cock:'#ffe9f1',cockR:5.5,flame:'#ff6b9d',shape:'fang',stripe:'#ffd0e0',d:'Side blades and big canopy',cost:30},
- {id:'gold',n:'Solar',c:'#ffd23f',hull:'#5c4a10',cock:'#fff6d8',cockR:5,flame:'#ffb347',shape:'solar',stripe:'#fff3c4',d:'Sun stripe, halo ring and wing lights',cost:45},
- {id:'ghost',n:'Ghost',c:'#e8f4ff',hull:'#3a4a5c',cock:'#ffffff',cockR:3.5,flame:'#9fd8ff',shape:'ghost',stripe:null,d:'Translucent hull, ice flame',cost:60}
+ {id:'default',n:'Classic',c:null,hull:null,cock:null,cockR:0,flame:null,shape:'std',stripe:null,wing:null,d:'Stock look',cost:0},
+ {id:'mint',n:'Patrol',c:'#dfe9e4',hull:'#46564e',cock:'#bfe8d0',cockR:4,flame:'#3dffb0',shape:'std',stripe:'#9fc4b2',wing:null,d:'Clean patrol build, soft green lights',cost:20},
+ {id:'rose',n:'Vanguard',c:'#9fbf6a',hull:'#3a4a2e',cock:'#16202c',cockR:4.5,flame:'#ff9f43',shape:'viper',stripe:'#d8e6b0',wing:'#6a7a4a',d:'Military fins and orange burn',cost:30},
+ {id:'gold',n:'Warden',c:'#b98cff',hull:'#3a245c',cock:'#4aa3ff',cockR:6,flame:'#c77dff',shape:'warden',stripe:'#e8d8a0',wing:'#ff5a5a',d:'Red wings, gold trim, blue gem core',cost:45},
+ {id:'ghost',n:'Dreadnought',c:'#e8f4ff',hull:'#2a3a5c',cock:'#9fd8ff',cockR:5.5,flame:'#ffd23f',shape:'dread',stripe:'#fff3c4',wing:'#ffd23f',d:'Crystal wings of light, star core',cost:60}
 ];
 const PERKS=[
  {id:'hp',n:'Reinforced Hull',d:'+4 starting max HP',max:3,cost:[10,18,28]},
@@ -493,7 +493,7 @@ function reset(){
  /* owned skin only changes the look, never the stats; copy so the global ship is untouched */
  SHIP=Object.assign({},SHIP);
  const _sk=SKINS.find(q=>q.id==META.skin);
- if(_sk&&_sk.c&&(META.owned||[]).includes(_sk.id)){SHIP.c=_sk.c;SHIP.hull=_sk.hull;SHIP.cock=_sk.cock;SHIP.cockR=_sk.cockR;SHIP.flame=_sk.flame;SHIP.shape=_sk.shape;SHIP.stripe=_sk.stripe}
+ if(_sk&&_sk.c&&(META.owned||[]).includes(_sk.id)){SHIP.c=_sk.c;SHIP.hull=_sk.hull;SHIP.cock=_sk.cock;SHIP.cockR=_sk.cockR;SHIP.flame=_sk.flame;SHIP.shape=_sk.shape;SHIP.stripe=_sk.stripe;SHIP.wing=_sk.wing}
  const _pk=META.perks||{hp:0,sp:0,money:0};
  P={x:W/2,y:H/2,hp:0,mx:Math.round(SHIP.hp*G.hpm)+4*(_pk.hp||0),inv:0,dash:0,dcd:0,fx:1,fy:0,aim:0,acd:0,act:0,did:0};P.hp=P.mx;
  S={dmg:SHIP.dmg*G.dmm,cd:SHIP.cd,multi:1,pierce:0,sp:SHIP.sp*Math.pow(1.02,_pk.sp||0),bl:0,rg:70,dc:SHIP.dc,ar:SHIP.ar,mm:G.mm*D.mm,mmb:0,own:{},rec:0,nova:0,rev:0,auto:0,ric:0,hom:0,crit:0,ls:0,ds:0,fr:0,syn:{}};
@@ -1021,7 +1021,7 @@ function shipCanopy(c,cock,R){
 }
 /* extra ship styling per skin: fins, blades, stripes, lights, panel lines, engine pods. Drawn after the hull. */
 function shipDeco(c,shipId,sk,edge){
- const shape=(sk&&sk.shape)||'std',acc=sk&&sk.stripe,cock=(sk&&sk.cock)||'#fff',flame=(sk&&sk.flame)||'#ffb347';
+ const shape=(sk&&sk.shape)||'std',acc=sk&&sk.stripe,cock=(sk&&sk.cock)||'#fff',flame=(sk&&sk.flame)||'#ffb347',wing=(sk&&sk.wing)||edge;
  c.save();c.lineJoin='round';c.lineCap='round';
  /* panel lines */
  c.globalAlpha=.4;c.strokeStyle='rgba(2,6,18,.9)';c.lineWidth=1;
@@ -1034,35 +1034,42 @@ function shipDeco(c,shipId,sk,edge){
   c.beginPath();c.arc(-11,6.5*s,2.6,0,TAU);c.fill();c.stroke();
   c.globalAlpha=1;c.fillStyle=flame;c.beginPath();c.arc(-11,6.5*s,1.2,0,TAU);c.fill();
  }
- if(shape=='viper'||shape=='fang'){
-  c.globalAlpha=.6;c.fillStyle=edge;c.strokeStyle=edge;c.lineWidth=2;
+ if(shape=='viper'||shape=='fang'||shape=='warden'){
+  c.globalAlpha=.75;c.fillStyle=wing;c.strokeStyle=edge;c.lineWidth=2;
   for(const s of [-1,1]){
    c.beginPath();
    if(shape=='viper'){c.moveTo(-6,-2*s);c.lineTo(-22,-12*s);c.lineTo(-14,-2*s)}
-   else{c.moveTo(12,-5*s);c.lineTo(-16,-13*s);c.lineTo(-2,-6*s)}
+   else{c.moveTo(14,-4*s);c.lineTo(-18,-15*s);c.lineTo(-2,-6*s)}
    c.closePath();c.fill();c.stroke();
   }
   /* tip lights */
   c.globalAlpha=1;c.fillStyle=cock;
-  for(const s of [-1,1]){c.beginPath();c.arc(shape=='viper'?-21:-15,(shape=='viper'?-11.5:-12.5)*s,2.2,0,TAU);c.fill()}
+  for(const s of [-1,1]){c.beginPath();c.arc(shape=='viper'?-21:-17,(shape=='viper'?-11.5:-14.5)*s,2.2,0,TAU);c.fill()}
  }
- if(sk&&sk.stripe&&(shape=='viper'||shape=='solar'||shape=='fang')){
-  c.globalAlpha=.9;c.strokeStyle=sk.stripe;c.lineWidth=shape=='solar'?5:3;
+ if(acc){
+  c.globalAlpha=.9;c.strokeStyle=acc;c.lineWidth=shape=='dread'?5:3;
   c.beginPath();c.moveTo(14,0);c.lineTo(-10,0);c.stroke();
  }
- if(shape=='solar'){
-  /* sun dots on the wings + halo ring around the cockpit + gold nose trim */
-  c.globalAlpha=1;c.fillStyle=sk.stripe||edge;
+ if(shape=='solar'||shape=='warden'){
+  /* sun dots on the wings + halo ring around the cockpit */
+  c.globalAlpha=1;c.fillStyle=acc||edge;
   for(const s of [-1,1]){c.beginPath();c.arc(-12,12.5*s,2.6,0,TAU);c.fill()}
-  c.globalAlpha=.8;c.strokeStyle=sk.stripe||edge;c.lineWidth=1.6;
+  c.globalAlpha=.8;c.strokeStyle=acc||edge;c.lineWidth=1.6;
   c.beginPath();c.arc(2,0,8,0,TAU);c.stroke();
-  c.globalAlpha=.9;c.lineWidth=2;
-  for(const s of [-1,1]){c.beginPath();c.moveTo(16,-2*s);c.lineTo(7,-7*s);c.stroke()}
  }
- if(shape=='ghost'){
-  /* thin inner light line along the hull */
-  c.globalAlpha=.5;c.strokeStyle='#ffffff';c.lineWidth=1;
-  shipPath(shipId,c);c.stroke();
+ if(shape=='solar'||shape=='warden'){
+  /* gold trim along the nose */
+  c.globalAlpha=.9;c.strokeStyle=acc||edge;c.lineWidth=2;
+  for(const s of [-1,1]){c.beginPath();c.moveTo(16,-2*s);c.lineTo(7,-7*s);c.stroke();c.beginPath();c.moveTo(10,10.5*s);c.lineTo(-4,13*s);c.stroke()}
+ }
+ if(shape=='dread'){
+  /* wings of light: big translucent wings with bright nodes + halo */
+  c.globalAlpha=.32;c.fillStyle=wing;c.strokeStyle=edge;c.lineWidth=1.5;
+  for(const s of [-1,1]){c.beginPath();c.moveTo(2,-3*s);c.lineTo(-26,-22*s);c.lineTo(-15,-3*s);c.closePath();c.fill();c.stroke()}
+  c.globalAlpha=1;c.fillStyle='#fff';
+  for(const s of [-1,1]){for(const q of [[-22,-19],[-16,-10],[-9,-5]]){c.beginPath();c.arc(q[0],q[1]*s,1.8,0,TAU);c.fill()}}
+  c.globalAlpha=.85;c.strokeStyle=acc||edge;c.lineWidth=1.6;
+  c.beginPath();c.arc(2,0,9,0,TAU);c.stroke();
  }
  c.restore();
 }
@@ -1144,12 +1151,10 @@ function draw(){
       x.save();x.translate(P.x,P.y);x.rotate(P.aim);
       if(mv){x.globalCompositeOperation='lighter';glow(-20,0,10+Math.random()*3,SHIP.flame||'#ffb347',.45);glow(-30,0,7,'#ff6b3d',.3);x.globalCompositeOperation='source-over'}
       x.fillStyle=blink?'#fff':shipGrad(SHIP);x.strokeStyle=sc;x.lineJoin='round';
-      const _gh=(SHIP.shape||'std')=='ghost'&&!blink;if(_gh){x.save();x.globalAlpha=.85}
       shipPath(SHIP.id);x.fill();x.lineWidth=2;x.stroke();
       shipDeco(x,SHIP.id,SHIP,sc);
       if(!blink)shipCanopy(x,SHIP.cock||'#fff',SHIP.cockR||4);
       else{x.fillStyle='#fff';x.beginPath();x.arc(2,0,SHIP.cockR||4,0,TAU);x.fill()}
-      if(_gh){x.restore()}
       x.restore();
       if(P.inv>0){x.strokeStyle=`rgba(255,255,255,${Math.min(1,P.inv/20)*.45})`;x.lineWidth=2;x.beginPath();x.arc(P.x,P.y,27,0,TAU);x.stroke()}
       if(P.dcd>0){x.strokeStyle='rgba(255,255,255,.45)';x.lineWidth=2;x.beginPath();x.arc(P.x,P.y,34,-Math.PI/2,-Math.PI/2+TAU*(1-P.dcd/S.dc));x.stroke()}
@@ -1389,22 +1394,29 @@ const add=o=>{scene.add(o);return o};
 const HULL={striker:[[19,0],[-14,-14],[-7,0],[-14,14]],phantom:[[22,0],[-12,-10],[-5,0],[-12,10]],bulwark:[[17,0],[7,-16],[-14,-16],[-9,0],[-14,16],[7,16]]};
 const ships={};
 function shipMesh(sh){
-  const ck=sh.id+sh.c+(sh.flame||'')+(sh.shape||'std');if(ships[ck])return ships[ck];
+  const ck=sh.id+sh.c+(sh.flame||'')+(sh.shape||'std')+(sh.wing||'');if(ships[ck])return ships[ck];
   const s=new THREE.Shape();HULL[sh.id].forEach(([a,b],i)=>i?s.lineTo(a,-b):s.moveTo(a,-b));s.closePath();
   const geo=new THREE.ExtrudeGeometry(s,{depth:5,bevelEnabled:true,bevelThickness:2.5,bevelSize:1.6,bevelSegments:3});
   const g=new THREE.Group();
   const body=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:0x2c3a58,metalness:.85,roughness:.25,emissive:C(sh.c),emissiveIntensity:.07}));body.castShadow=true;g.add(body);
   g.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo,30),new THREE.LineBasicMaterial({color:C(sh.c,1.2)})));
-  const pit=new THREE.Mesh(new THREE.SphereGeometry(3.6,16,10),new THREE.MeshBasicMaterial({color:C('#ffffff',1.4)}));pit.position.set(3,0,8);g.add(pit);
+  const pit=new THREE.Mesh(new THREE.SphereGeometry(3.6,16,10),new THREE.MeshBasicMaterial({color:C(sh.cock||'#ffffff',1.6)}));pit.position.set(3,0,8);g.add(pit);
   const fl=new THREE.Mesh(new THREE.ConeGeometry(4.5,18,14),new THREE.MeshBasicMaterial({color:C(sh.flame||'#ffa040',2),transparent:true,opacity:.55,blending:THREE.AdditiveBlending,depthWrite:false}));
   fl.rotation.z=Math.PI/2;fl.position.set(-20,0,4);g.add(fl);g.userData.fl=fl;
   const sh2=new THREE.Mesh(new THREE.SphereGeometry(36,32,16),new THREE.MeshBasicMaterial({color:C(sh.c,1),transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));g.add(sh2);g.userData.sh=sh2;
-  /* skin extras in 3D: fins, blades, sun ring, ghost translucency */
-  const shShape=sh.shape||'std',edgeM3=new THREE.MeshBasicMaterial({color:C(sh.c,1.6)});
-  if(shShape=='viper')for(const s of [-1,1]){const f=new THREE.Mesh(new THREE.BoxGeometry(11,1.4,2),edgeM3);f.position.set(-17,s*7,3);f.rotation.z=s*.45;f.castShadow=true;g.add(f)}
-  else if(shShape=='fang')for(const s of [-1,1]){const f=new THREE.Mesh(new THREE.BoxGeometry(22,1,1.6),edgeM3);f.position.set(-2,s*11,3);f.rotation.z=-s*.12;f.castShadow=true;g.add(f)}
-  else if(shShape=='solar'){const r=new THREE.Mesh(new THREE.TorusGeometry(25,1,10,48),new THREE.MeshBasicMaterial({color:C('#ffd23f',1.6)}));r.position.z=3;g.add(r)}
-  else if(shShape=='ghost'){body.material.transparent=true;body.material.opacity=.8}
+  /* skin extras in 3D: fins, red wings + gem + trim, wings of light + core */
+  const shShape=sh.shape||'std',edgeM3=new THREE.MeshBasicMaterial({color:C(sh.wing||sh.c,1.6)});
+  if(shShape=='viper')for(const s of [-1,1]){const f=new THREE.Mesh(new THREE.BoxGeometry(13,1.6,2),edgeM3);f.position.set(-17,s*7,3);f.rotation.z=s*.45;f.castShadow=true;g.add(f)}
+  else if(shShape=='warden'){
+   for(const s of [-1,1]){const f=new THREE.Mesh(new THREE.BoxGeometry(24,1.2,1.8),edgeM3);f.position.set(-2,s*12,3);f.rotation.z=-s*.1;f.castShadow=true;g.add(f)}
+   const gem=new THREE.Mesh(new THREE.OctahedronGeometry(5,0),new THREE.MeshBasicMaterial({color:C(sh.cock||'#4aa3ff',2.2)}));gem.position.set(2,0,9);g.add(gem);
+   const trim=new THREE.Mesh(new THREE.TorusGeometry(12,.8,8,40),new THREE.MeshBasicMaterial({color:C('#e8d8a0',1.6)}));trim.position.set(2,0,6);g.add(trim);
+  }
+  else if(shShape=='dread'){
+   const wm=new THREE.MeshBasicMaterial({color:C(sh.wing||'#ffd23f',1.4),transparent:true,opacity:.4,blending:THREE.AdditiveBlending,depthWrite:false});
+   for(const s of [-1,1]){const wmesh=new THREE.Mesh(new THREE.BoxGeometry(26,14,.5),wm);wmesh.position.set(-10,s*16,4);wmesh.rotation.z=-s*.35;g.add(wmesh)}
+   const core=new THREE.Mesh(new THREE.SphereGeometry(4,16,12),new THREE.MeshBasicMaterial({color:C(sh.cock||'#9fd8ff',2.4)}));core.position.set(2,0,9);g.add(core);
+  }
   const pit2=new THREE.Mesh(new THREE.SphereGeometry(2,10,8),new THREE.MeshBasicMaterial({color:C(sh.cock||'#ffffff',1.8)}));pit2.position.set(-6,0,8);g.add(pit2);
   g.visible=false;scene.add(g);return ships[ck]=g;
 }
