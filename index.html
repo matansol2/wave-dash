@@ -762,7 +762,7 @@ function upd(d){
   if(P.dash>0){const sl=(SHIP.id=='phantom'?3:0)+S.ds*2;if(sl>0){kSrc='dash';for(const e of en)if(!e.dead&&e.dsl!=P.did&&Math.hypot(e.x-P.x,e.y-P.y)<e.r+18){e.dsl=P.did;hit(e,S.dmg*sl,1)}kSrc=''}}
   if(m>0&&Math.random()<.5)pt.push({x:P.x,y:P.y,vx:0,vy:0,l:12,m:12,c:SHIP.c,s:4});
   healT-=d;
-  if(healT<=0){healT=600;if(healN<4&&gm.filter(g=>g.pack).length<2){let hx,hy,tr=0;do{hx=70+Math.random()*(W-140);hy=100+Math.random()*(H-170)}while(inRock(hx,hy,30)&&++tr<20);gm.push({x:hx,y:hy,v:10,h:1,pack:1,life:960});healN++;rings.push({x:hx,y:hy,r:10,mr:90,l:22});burst(hx,hy,16,'#7cff6b',4)}}
+  if(healT<=0){healT=600;if(healN<2&&gm.filter(g=>g.pack).length<2){let hx,hy,tr=0;do{hx=70+Math.random()*(W-140);hy=100+Math.random()*(H-170)}while(inRock(hx,hy,30)&&++tr<20);gm.push({x:hx,y:hy,v:10,h:1,pack:1,life:960});healN++;rings.push({x:hx,y:hy,r:10,mr:90,l:22});burst(hx,hy,16,'#7cff6b',4)}}
   if(phase=='break'){brk-=d;if(brk<=0)startWave()}
   else if(phase=='fight'){
     spT-=d;
