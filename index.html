@@ -114,11 +114,11 @@ let ACH=lj('waves-ach',{}),CODEX=lj('waves-codex',{}),LIFE=lj('waves-life',{elit
 /* meta progression: permanent shards earned after each run, spent on ship skins (visual only)
    and tiny permanent perks. No new ships or modifiers here, and everything stays small on purpose. */
 const SKINS=[
- {id:'default',n:'Classic',c:null,hull:null,cock:null,cockR:0,flame:null,shape:'std',stripe:null,wing:null,d:'Stock look',cost:0},
- {id:'mint',n:'Patrol',c:'#dfe9e4',hull:'#46564e',cock:'#bfe8d0',cockR:4,flame:'#3dffb0',shape:'std',stripe:'#9fc4b2',wing:null,d:'Clean patrol build, soft green lights',cost:20},
- {id:'rose',n:'Vanguard',c:'#9fbf6a',hull:'#3a4a2e',cock:'#16202c',cockR:4.5,flame:'#ff9f43',shape:'viper',stripe:'#d8e6b0',wing:'#6a7a4a',d:'Military fins and orange burn',cost:30},
- {id:'gold',n:'Warden',c:'#b98cff',hull:'#3a245c',cock:'#4aa3ff',cockR:6,flame:'#c77dff',shape:'warden',stripe:'#e8d8a0',wing:'#ff5a5a',d:'Red wings, gold trim, blue gem core',cost:45},
- {id:'ghost',n:'Dreadnought',c:'#e8f4ff',hull:'#2a3a5c',cock:'#9fd8ff',cockR:5.5,flame:'#ffd23f',shape:'dread',stripe:'#fff3c4',wing:'#ffd23f',d:'Crystal wings of light, star core',cost:60}
+ {id:'default',n:'Classic',c:null,hull:null,dark:null,cock:null,cockR:0,flame:null,shape:'std',stripe:null,wing:null,d:'Stock look',cost:0},
+ {id:'mint',n:'Patrol',c:'#e8ece2',hull:'#b0a888',dark:'#4a4638',cock:'#2a4a3a',cockR:6,flame:'#3dffb0',shape:'std',stripe:'#7a8a72',wing:null,d:'Clean patrol build, soft green lights',cost:20},
+ {id:'rose',n:'Vanguard',c:'#b8cc8a',hull:'#7a8a62',dark:'#2a3020',cock:'#16202c',cockR:4.5,flame:'#ff9f43',shape:'viper',stripe:'#d8e6b0',wing:'#5a6a42',d:'Military fins and orange burn',cost:30},
+ {id:'gold',n:'Warden',c:'#b98cff',hull:'#5a3a8c',dark:'#1a1030',cock:'#4aa3ff',cockR:6,flame:'#c77dff',shape:'warden',stripe:'#e8d8a0',wing:'#ff5a5a',d:'Red wings, gold trim, blue gem core',cost:45},
+ {id:'ghost',n:'Dreadnought',c:'#e8f4ff',hull:'#3a4a6c',dark:'#101428',cock:'#9fd8ff',cockR:5.5,flame:'#ffd23f',shape:'dread',stripe:'#fff3c4',wing:'#ffd23f',d:'Crystal wings of light, star core',cost:60}
 ];
 const PERKS=[
  {id:'hp',n:'Reinforced Hull',d:'+4 starting max HP',max:3,cost:[10,18,28]},
@@ -168,8 +168,8 @@ for(let i=0;i<90;i++)stars.push({x:Math.random()*W,y:Math.random()*H,z:Math.rand
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 /* ships: each has a passive (pn/pd) and an active ability (an/ad, cooldown acd in frames) */
 const SHIPS=[
- {id:'striker',n:'Striker',tag:'BALANCED',c:'#00e5ff',hp:50,sp:2.9,cd:22,dmg:1,dc:95,ar:1,acd:840,
-  pn:'Overdrive',pd:'Every kill cuts 0.25s off your ability cooldown.',an:'Bullet Storm',ad:'For 5s, fire twice as fast with +2 shots.'},
+  {id:'striker',n:'Striker',tag:'BALANCED',c:'#00e5ff',hp:50,sp:2.9,cd:22,dmg:1,dc:95,ar:1,acd:840,
+   pn:'Overdrive',pd:'Every kill cuts 0.25s off your ability cooldown.',an:'Bullet Storm',ad:'For 4s, fire 30% faster with +1 shot.'},
  {id:'phantom',n:'Phantom',tag:'FAST & FRAGILE',c:'#c77dff',hp:35,sp:3.4,cd:19,dmg:1,dc:65,ar:1,acd:420,
   pn:'Shadow Step',pd:'Dash recharges faster and slices enemies you pass through for 3x damage.',an:'Phase Blink',ad:'Teleport to the cursor, blasting enemies and shots around you.'},
  {id:'bulwark',n:'Bulwark',tag:'HEAVY TANK',c:'#ffb020',hp:85,sp:2.45,cd:26,dmg:1.5,dc:120,ar:.85,acd:780,
@@ -730,7 +730,7 @@ function dronesBlock(b){for(let k=0;k<S.bl;k++){const [dx,dy]=droneAt(k);if(Math
 function shoot(a,o){R.shots++;bu.push(Object.assign({x:P.x,y:P.y,vx:Math.cos(a)*8,vy:Math.sin(a)*8,pr:S.pierce,l:S.rg,h:new Set(),rc:S.ric+(S.syn.seek?2:0)},o))}
 function useAbility(){
   P.acd=SHIP.acd;sfx('abil');
-  if(SHIP.id=='striker'){P.act=300;ft.push({x:P.x,y:P.y-30,s:'BULLET STORM',l:50,c:SHIP.c})}
+  if(SHIP.id=='striker'){P.act=240;ft.push({x:P.x,y:P.y-30,s:'BULLET STORM',l:50,c:SHIP.c})}
   else if(SHIP.id=='phantom'){
     const tx=clamp(mx,20,W-20),ty=clamp(my,20,H-20),R=120;
     burst(P.x,P.y,20,SHIP.c,5);P.x=tx;P.y=ty;P.inv=Math.max(P.inv,30);
@@ -781,8 +781,8 @@ function upd(d){
   fireT-=d;
   if(mouseHeld&&mode=='play')firing=true;
   if((firing||mouseHeld||S.auto)&&fireT<=0){
-    const st=SHIP.id=='striker'&&P.act>0,n=S.multi+(st?2:0);
-    fireT=st?S.cd*.5:S.cd;sfx('shoot');
+    const st=SHIP.id=='striker'&&P.act>0,n=S.multi+(st?1:0);
+    fireT=st?S.cd*.7:S.cd;sfx('shoot');
     for(let i=0;i<n;i++)shoot(P.aim+(i-(n-1)/2)*.17);
   }
   const bdm=S.syn.rail?1.5:1;
@@ -1009,7 +1009,7 @@ function drawBeams(e){
   x.globalAlpha=1;
 }
 const SGR={};
-function shipGrad(sh){const k=sh.id+sh.c+sh.hull;if(SGR[k])return SGR[k];const g=x.createLinearGradient(-16,0,20,0);g.addColorStop(0,'#081428');g.addColorStop(.55,sh.hull||'#123a5c');g.addColorStop(1,sh.c);return SGR[k]=g}
+function shipGrad(sh){const k=sh.id+sh.c+sh.hull+sh.dark;if(SGR[k])return SGR[k];const g=x.createLinearGradient(-16,0,20,0);g.addColorStop(0,sh.dark||'#081428');g.addColorStop(.55,sh.hull||'#123a5c');g.addColorStop(1,sh.c);return SGR[k]=g}
 function shipPath(id,c){c=c||x;c.beginPath();
  if(id=='phantom'){c.moveTo(22,0);c.lineTo(-12,-10);c.lineTo(-5,0);c.lineTo(-12,10)}
  else if(id=='bulwark'){c.moveTo(17,0);c.lineTo(7,-16);c.lineTo(-14,-16);c.lineTo(-9,0);c.lineTo(-14,16);c.lineTo(7,16)}
@@ -1085,6 +1085,10 @@ function skinPreview(cv2,shipId,sk,baseC){
  const gr=g.createLinearGradient(-16,0,20,0);gr.addColorStop(0,'#081428');gr.addColorStop(.55,hull);gr.addColorStop(1,edge);
  shipPath(shipId,g);g.fillStyle=gr;g.fill();g.lineWidth=2.5;g.strokeStyle=edge;g.stroke();
  shipDeco(g,shipId,sk,edge);
+ /* static flames for the beauty shot */
+ g.globalAlpha=.85;g.fillStyle=sk.flame||'#ffb347';
+ for(const s of [-1,1]){g.beginPath();g.moveTo(-13,6.5*s-1.6);g.lineTo(-13,6.5*s+1.6);g.lineTo(-23,6.5*s);g.closePath();g.fill()}
+ g.globalAlpha=1;
  shipCanopy(g,sk.cock||'#fff',sk.cockR||4);
  g.restore();
 }
