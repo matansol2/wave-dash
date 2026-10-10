@@ -115,7 +115,7 @@ let ACH=lj('waves-ach',{}),CODEX=lj('waves-codex',{}),LIFE=lj('waves-life',{elit
    and tiny permanent perks. No new ships or modifiers here, and everything stays small on purpose. */
 const SKINS=[
  {id:'default',n:'Classic',c:null,hull:null,dark:null,cock:null,cockR:0,flame:null,shape:'std',stripe:null,wing:null,d:'Stock look',cost:0},
- {id:'mint',n:'Patrol',c:'#e8ece2',hull:'#b0a888',dark:'#4a4638',cock:'#2a4a3a',cockR:6,flame:'#3dffb0',shape:'std',stripe:'#7a8a72',wing:null,d:'Clean patrol build, soft green lights',cost:20},
+ {id:'mint',n:'Patrol',c:'#e8ece2',hull:'#8f8a6e',dark:'#33382c',cock:'#24382c',cockR:6,flame:'#3dffb0',shape:'std',stripe:'#5a6a58',wing:null,d:'Clean patrol build, soft green lights',cost:20},
  {id:'rose',n:'Vanguard',c:'#b8cc8a',hull:'#7a8a62',dark:'#2a3020',cock:'#16202c',cockR:4.5,flame:'#ff9f43',shape:'viper',stripe:'#d8e6b0',wing:'#5a6a42',d:'Military fins and orange burn',cost:30},
  {id:'gold',n:'Warden',c:'#b98cff',hull:'#5a3a8c',dark:'#1a1030',cock:'#4aa3ff',cockR:6,flame:'#c77dff',shape:'warden',stripe:'#e8d8a0',wing:'#ff5a5a',d:'Red wings, gold trim, blue gem core',cost:45},
  {id:'ghost',n:'Dreadnought',c:'#e8f4ff',hull:'#3a4a6c',dark:'#101428',cock:'#9fd8ff',cockR:5.5,flame:'#ffd23f',shape:'dread',stripe:'#fff3c4',wing:'#ffd23f',d:'Crystal wings of light, star core',cost:60}
@@ -1018,9 +1018,9 @@ function shipPath(id,c){c=c||x;c.beginPath();
 }
 /* glass canopy with shine */
 function shipCanopy(c,cock,R){
- const g=c.createLinearGradient(0,-R,0,R);g.addColorStop(0,'#ffffff');g.addColorStop(.45,cock);g.addColorStop(1,'#0a1428');
- c.fillStyle=g;c.beginPath();c.ellipse(2,0,R+2.5,R,0,0,TAU);c.fill();
- c.fillStyle='rgba(255,255,255,.85)';c.beginPath();c.arc(0,-R*.35,Math.max(1,R*.28),0,TAU);c.fill();
+ c.fillStyle=cock;c.beginPath();c.ellipse(2,0,R+2.5,R,0,0,TAU);c.fill();
+ c.strokeStyle='rgba(255,255,255,.5)';c.lineWidth=1;c.stroke();
+ c.fillStyle='rgba(255,255,255,.9)';c.beginPath();c.arc(1,-R*.3,Math.max(.8,R*.22),0,TAU);c.fill();
 }
 /* extra ship styling per skin: fins, blades, stripes, lights, panel lines, engine pods. Drawn after the hull. */
 function shipDeco(c,shipId,sk,edge){
@@ -1033,9 +1033,9 @@ function shipDeco(c,shipId,sk,edge){
  c.globalAlpha=1;c.fillStyle='#fff';c.beginPath();c.arc(19,0,1.6,0,TAU);c.fill();
  /* engine pods with flame dots */
  for(const s of [-1,1]){
-  c.globalAlpha=.95;c.fillStyle='#0a1226';c.strokeStyle=edge;c.lineWidth=1.4;
+  c.globalAlpha=.95;c.fillStyle='#0a1226';c.strokeStyle=edge;c.lineWidth=1;
   c.beginPath();c.arc(-11,6.5*s,2.6,0,TAU);c.fill();c.stroke();
-  c.globalAlpha=1;c.fillStyle=flame;c.beginPath();c.arc(-11,6.5*s,1.2,0,TAU);c.fill();
+  c.globalAlpha=1;c.fillStyle=flame;c.beginPath();c.arc(-11,6.5*s,1,0,TAU);c.fill();
  }
  if(shape=='viper'||shape=='fang'||shape=='warden'){
   c.globalAlpha=.75;c.fillStyle=wing;c.strokeStyle=edge;c.lineWidth=2;
@@ -1322,6 +1322,7 @@ $('fsb').onclick=()=>{au();sfx('click');try{if(document.fullscreenElement)docume
 reset();showTitle();banner=null;
 requestAnimationFrame(loop);
 </script>
+<script src="local-cheat.js"></script>
 <script type="module">
 /* GPU renderer: draws the arena with WebGL through Three.js (lighting, soft shadows, bloom glow, 3D meshes).
    Game logic, HUD and telegraph markers stay in the main script and its 2D canvas, which sits on top.
