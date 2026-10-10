@@ -1423,6 +1423,7 @@ function syncParticles(){
 
 /* pickups, blades, shock rings, air strikes, lava, lasers, arena edge */
 const orbP=pool(()=>add(new THREE.Mesh(new THREE.IcosahedronGeometry(6,1),new THREE.MeshBasicMaterial({color:C('#ff6b9d',2.2)}))));
+const tokP=pool(()=>add(new THREE.Mesh(new THREE.OctahedronGeometry(7,0),new THREE.MeshBasicMaterial({color:C('#ffd23f',2.4)}))));
 const packP=pool(()=>{const g=new THREE.Group(),m=new THREE.MeshStandardMaterial({color:0x0b2a16,emissive:C('#7cff6b'),emissiveIntensity:.55,metalness:.3,roughness:.4});
   for(const [w,h] of [[7,20],[20,7]]){const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,7),m);b.castShadow=true;g.add(b)}
   const r=new THREE.Mesh(new THREE.TorusGeometry(17,1.2,8,40),new THREE.MeshBasicMaterial({color:C('#7cff6b',.9)}));g.add(r);return add(g)});
@@ -1460,18 +1461,19 @@ function render(){
   if(P){
     const g=shipMesh(SHIP),blink=P.inv>0&&Math.floor(P.inv/4)%2,mv=keys.l||keys.r||keys.u||keys.d;
     g.visible=mode!='dead';g.position.set(wx(P.x),wy(P.y),10);g.rotation.set(0,0,-P.aim);
-    g.children[0].material.emissiveIntensity=blink?1.2:.14;
+    g.children[0].material.emissiveIntensity=blink?1.2:.07;
     g.userData.fl.visible=!!mv||P.dash>0;g.userData.fl.scale.set(1,(P.dash>0?1.8:1)*(.8+Math.random()*.4),1);
     g.userData.sh.visible=SHIP.id=='bulwark'&&P.act>0;
     pl.color.set(SHIP.c);pl.position.set(wx(P.x),wy(P.y),45);pl.intensity=dark?5:(SHIP.id=='striker'&&P.act>0?3.2:1.6);pl.distance=dark?300:320;
   }
   syncEnemies();syncBullets();syncParticles();
-  orbP.reset();packP.reset();
+  orbP.reset();packP.reset();tokP.reset();
   for(const q of gm){
     if(q.pack){const o=packP.get();o.position.set(wx(q.x),wy(q.y),8);o.rotation.z=t*.03;o.visible=!(q.life<180&&Math.floor(q.life/8)%2)}
+    else if(q.tok){const o=tokP.get();o.position.set(wx(q.x),wy(q.y),10);o.rotation.set(t*.05,t*.07,0)}
     else{const o=orbP.get();o.position.set(wx(q.x),wy(q.y),8);o.rotation.set(t*.05,t*.07,0)}
   }
-  orbP.end();packP.end();
+  orbP.end();packP.end();tokP.end();
   bladeP.reset();if(P)for(let k=0;k<S.bl;k++){const a=ba+k*TAU/S.bl,o=bladeP.get();o.position.set(wx(P.x+Math.cos(a)*72),wy(P.y+Math.sin(a)*72),12);o.rotation.z=-(a+Math.PI/2)}bladeP.end();
   ringP.reset();for(const r of rings){const o=ringP.get();o.position.set(wx(r.x),wy(r.y),4);o.scale.setScalar(Math.max(1,r.r));o.material.color.set(r.c||'#7cff6b').multiplyScalar(2.2);o.material.opacity=Math.max(0,r.l/22)}ringP.end();
   skP.reset();for(const s of sk){const o=skP.get(),q=1-s.t/70;o.position.set(wx(s.x),wy(s.y),1);o.children[0].scale.setScalar(s.r);o.children[0].material.opacity=.5+.4*Math.sin(t*.6);o.children[1].scale.setScalar(Math.max(.01,s.r*q))}skP.end();
