@@ -1150,7 +1150,8 @@ function draw(){
       x.fillStyle='#d6ffd0';x.beginPath();x.arc(0,0,3.5,0,TAU);x.fill();x.restore()}
     for(const r of rings){x.globalAlpha=Math.max(0,r.l/22);x.strokeStyle=r.c||'#7cff6b';x.lineWidth=5;x.beginPath();x.arc(r.x,r.y,r.r,0,TAU);x.stroke()}
     x.globalAlpha=1;
-    if(mode!='dead'){
+    /* no gameplay ship on menu/select screens (it looked glitchy behind the overlay) */
+    if(mode!='dead'&&mode!='menu'&&mode!='select'){
       if(mode=='play'){x.globalAlpha=.16;x.strokeStyle='#fff';x.lineWidth=1.5;x.beginPath();x.moveTo(P.x,P.y);x.lineTo(P.x+Math.cos(P.aim)*280,P.y+Math.sin(P.aim)*280);x.stroke();x.globalAlpha=1}
       const blink=P.inv>0&&Math.floor(P.inv/4)%2,mv=keys.l||keys.r||keys.u||keys.d,sc=SHIP.c;
       x.globalCompositeOperation='lighter';glow(P.x,P.y,26,sc,.16);if(P.act>0&&SHIP.id=='striker')glow(P.x,P.y,50,sc,.1+.05*Math.sin(t*.4));x.globalCompositeOperation='source-over';
@@ -1549,7 +1550,7 @@ function render(){
   for(const id in ships)ships[id].visible=false;
   if(P){
     const g=shipMesh(SHIP),blink=P.inv>0&&Math.floor(P.inv/4)%2,mv=keys.l||keys.r||keys.u||keys.d;
-    g.visible=mode!='dead';g.position.set(wx(P.x),wy(P.y),10);g.rotation.set(0,0,-P.aim);
+    g.visible=mode!='dead'&&mode!='menu'&&mode!='select';g.position.set(wx(P.x),wy(P.y),10);g.rotation.set(0,0,-P.aim);
     g.children[0].material.emissiveIntensity=blink?1.2:.07;
     g.userData.fl.visible=!!mv||P.dash>0;g.userData.fl.scale.set(1,(P.dash>0?1.8:1)*(.8+Math.random()*.4),1);
     g.userData.sh.visible=SHIP.id=='bulwark'&&P.act>0;
