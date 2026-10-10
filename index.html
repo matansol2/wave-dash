@@ -114,11 +114,11 @@ let ACH=lj('waves-ach',{}),CODEX=lj('waves-codex',{}),LIFE=lj('waves-life',{elit
 /* meta progression: permanent shards earned after each run, spent on ship skins (visual only)
    and tiny permanent perks. No new ships or modifiers here, and everything stays small on purpose. */
 const SKINS=[
- {id:'default',n:'Classic',c:null,cost:0},
- {id:'mint',n:'Mint',c:'#3dffb0',cost:20},
- {id:'rose',n:'Rose',c:'#ff6b9d',cost:30},
- {id:'gold',n:'Gold',c:'#ffd23f',cost:45},
- {id:'ghost',n:'Ghost',c:'#e8f4ff',cost:60}
+ {id:'default',n:'Classic',c:null,hull:null,cock:null,flame:null,cost:0},
+ {id:'mint',n:'Mint Viper',c:'#3dffb0',hull:'#14584a',cock:'#eafff5',flame:'#3dffb0',cost:20},
+ {id:'rose',n:'Rose Fang',c:'#ff6b9d',hull:'#5c1633',cock:'#ffe9f1',flame:'#ff6b9d',cost:30},
+ {id:'gold',n:'Solar',c:'#ffd23f',hull:'#5c4a10',cock:'#fff6d8',flame:'#ffb347',cost:45},
+ {id:'ghost',n:'Ghost',c:'#e8f4ff',hull:'#3a4a5c',cock:'#ffffff',flame:'#9fd8ff',cost:60}
 ];
 const PERKS=[
  {id:'hp',n:'Reinforced Hull',d:'+4 starting max HP',max:3,cost:[10,18,28]},
@@ -131,15 +131,14 @@ function saveMetaAll(){saveMeta();ls('waves-meta',JSON.stringify(META))}
 function earnShards(win){const b=R.bosses||0;let s=1+Math.floor(wave/4)+Math.floor(kills/300)+b*2+(win?5:0);s=Math.max(1,Math.round(s*[.75,1,1.25][diffI]));META.sh+=s;saveMetaAll();return s}
 function metaBoxHTML(got){
   const sk=SKINS.map(q=>{const own=(META.owned||[]).includes(q.id),on=META.skin==q.id;
-    const dot='<i style=\'font-style:normal;color:'+(q.c||'#c9d1d9')+'\'>●</i> ';
-    const lbl=dot+(on?q.n+' ✓':own?q.n:'🔒 '+q.n+' ('+q.cost+'✦)');
-    const tip=on?q.n+' is equipped (color only, no stats)':own?'Click to fly in '+q.n+' (color only, no stats)':'LOCKED: finish runs to earn ✦. '+q.n+' costs '+q.cost+'✦ — buy it here';
+    const lbl='<canvas width="56" height="38" data-pv="'+q.id+'" style="display:block;margin:0 auto 2px"></canvas><span>'+(on?q.n+' ✓':own?q.n:'🔒 '+q.n+' ('+q.cost+'✦)')+'</span>';
+    const tip=on?q.n+' is equipped (styled hull, cockpit and flame)':own?'Click to fly '+q.n+' (styled hull, cockpit and flame)':'LOCKED: finish runs to earn ✦. '+q.n+' costs '+q.cost+'✦ — buy it here';
     return '<button class="small" data-skin="'+q.id+'"'+(on?' disabled':'')+(q.c?' style="border-color:'+q.c+'"':'')+' data-tip="'+tip+'">'+lbl+'</button>'}).join('');
   const pk=PERKS.map(q=>{const lv=(META.perks||{})[q.id]||0,mx=lv>=q.max;
     const lbl=mx?q.n+' MAX':(lv>0?q.n+' '+lv+'/'+q.max+' ('+q.cost[lv]+'✦)':'🔒 '+q.n+' ('+q.cost[0]+'✦)');
     const tip=mx?q.n+' is maxed ('+q.d+' × '+q.max+')':q.d+' ('+(lv+1)+'/'+q.max+'). Costs '+q.cost[lv]+'✦ — finish runs to earn ✦';
     return '<button class="small" data-perk="'+q.id+'"'+(mx?' disabled':'')+' data-tip="'+tip+'">'+lbl+'</button>'}).join('');
-  return '<div id="metabox" style="display:flex;flex-direction:column;gap:8px;align-items:center;max-width:94%"><div style="font-size:17px">✦ <b>'+META.sh+'</b> shards'+(got?' <span style="color:#7cff6b">(+'+got+' this run)</span>':'')+'</div><div class="hint" style="font-size:12px;opacity:.7">Earn ✦ by finishing runs: waves + kills + bosses + victories (Harder = more)</div><div style="font-size:13px;letter-spacing:1px;opacity:.8"><b>SHIP SKIN</b> — color only</div><div class="row small">'+sk+'</div><div style="font-size:13px;letter-spacing:1px;opacity:.8"><b>FOREVER UPGRADES</b> — tiny, work every run</div><div class="row small">'+pk+'</div></div>';
+  return '<div id="metabox" style="display:flex;flex-direction:column;gap:8px;align-items:center;max-width:94%"><div style="font-size:17px">✦ <b>'+META.sh+'</b> shards'+(got?' <span style="color:#7cff6b">(+'+got+' this run)</span>':'')+'</div><div class="hint" style="font-size:12px;opacity:.7">Earn ✦ by finishing runs: waves + kills + bosses + victories (Harder = more)</div><div style="font-size:13px;letter-spacing:1px;opacity:.8"><b>SHIP SKIN</b> — full style, no stats</div><div class="row small">'+sk+'</div><div style="font-size:13px;letter-spacing:1px;opacity:.8"><b>FOREVER UPGRADES</b> — tiny, work every run</div><div class="row small">'+pk+'</div></div>';
 }
 function wireMeta(){
   document.querySelectorAll('#metabox [data-skin]').forEach(b=>b.onclick=()=>{
@@ -151,6 +150,14 @@ function wireMeta(){
     const q=PERKS.find(z=>z.id==b.dataset.perk);if(!q)return;const lv=(META.perks||{})[q.id]||0;
     if(lv>=q.max)return;if(META.sh<q.cost[lv]){sfx('lock');return}
     META.sh-=q.cost[lv];META.perks[q.id]=lv+1;saveMetaAll();sfx('syn');refreshMeta();
+  });
+  paintMetaPreviews();
+}
+/* paint the mini ship pictures inside end-of-run skin buttons */
+function paintMetaPreviews(){
+  const base=(typeof SHIP!=='undefined'&&SHIP&&SHIPS.find(s=>s.id==SHIP.id))||SHIPS[shipI]||SHIPS[0];
+  document.querySelectorAll('#metabox canvas[data-pv]').forEach(cv2=>{
+    const q=SKINS.find(z=>z.id==cv2.dataset.pv);if(q)skinPreview(cv2,base.id,q,base.c);
   });
 }
 let LASTGOT=0;
@@ -483,10 +490,10 @@ function drawDark(){
 }
 function reset(){
  SHIP=SHIPS[shipI];G=MODS[modI];D=DIFFS[diffI];EF=G.efr*D.efr;cin=null;
- /* owned skin only changes the color, never the stats; copy so the global ship is untouched */
+ /* owned skin only changes the look, never the stats; copy so the global ship is untouched */
  SHIP=Object.assign({},SHIP);
  const _sk=SKINS.find(q=>q.id==META.skin);
- if(_sk&&_sk.c&&(META.owned||[]).includes(_sk.id))SHIP.c=_sk.c;
+ if(_sk&&_sk.c&&(META.owned||[]).includes(_sk.id)){SHIP.c=_sk.c;SHIP.hull=_sk.hull;SHIP.cock=_sk.cock;SHIP.flame=_sk.flame}
  const _pk=META.perks||{hp:0,sp:0,money:0};
  P={x:W/2,y:H/2,hp:0,mx:Math.round(SHIP.hp*G.hpm)+4*(_pk.hp||0),inv:0,dash:0,dcd:0,fx:1,fy:0,aim:0,acd:0,act:0,did:0};P.hp=P.mx;
  S={dmg:SHIP.dmg*G.dmm,cd:SHIP.cd,multi:1,pierce:0,sp:SHIP.sp*Math.pow(1.02,_pk.sp||0),bl:0,rg:70,dc:SHIP.dc,ar:SHIP.ar,mm:G.mm*D.mm,mmb:0,own:{},rec:0,nova:0,rev:0,auto:0,ric:0,hom:0,crit:0,ls:0,ds:0,fr:0,syn:{}};
@@ -523,9 +530,11 @@ function renderSel(){
   /* owned skins can be equipped here; new ones are bought on the end-of-run screens */
   const kd=$('skins');kd.innerHTML='<b>SKIN</b>';
   SKINS.forEach(q=>{const own=(META.owned||[]).includes(q.id),on=META.skin==q.id;
-    const dot='<i style="font-style:normal;color:'+(q.c||'#c9d1d9')+'">●</i> ';
     const b=document.createElement('button');b.className=on?'on':'';if(q.c)b.style.setProperty('--rc',q.c);
-    b.innerHTML=dot+(on?q.n+' ✓':own?q.n:'🔒 '+q.n+' '+q.cost+'✦');b.dataset.tip=own?(on?q.n+' is equipped (color only)':'Equip '+q.n+' (color only)'):'LOCKED: finish runs to earn ✦. '+q.n+' costs '+q.cost+'✦ — buy it on the end-of-run screen';
+    const pv=document.createElement('canvas');pv.width=56;pv.height=38;pv.style.display='block';pv.style.margin='0 auto 2px';
+    skinPreview(pv,SHIPS[shipI].id,q,SHIPS[shipI].c);
+    const sp=document.createElement('span');sp.textContent=on?q.n+' ✓':own?q.n:'🔒 '+q.n+' '+q.cost+'✦';
+    b.appendChild(pv);b.appendChild(sp);b.dataset.tip=own?(on?q.n+' is equipped (styled hull, cockpit and flame)':'Equip '+q.n+' (styled hull, cockpit and flame)'):'LOCKED: finish runs to earn ✦. '+q.n+' costs '+q.cost+'✦ — buy it on the end-of-run screen';
     b.onclick=()=>{if(!(META.owned||[]).includes(q.id)){sfx('lock');return}META.skin=q.id;saveMetaAll();sfx('click');renderSel()};kd.appendChild(b)});
   renderSelShards();
   $('selh').textContent=gmode=='story'?'Choose your ship':'Endless · Choose your ship';
@@ -994,13 +1003,22 @@ function drawBeams(e){
   x.globalAlpha=1;
 }
 const SGR={};
-function shipGrad(sh){const k=sh.id+sh.c;if(SGR[k])return SGR[k];const g=x.createLinearGradient(-16,0,20,0);g.addColorStop(0,'#081428');g.addColorStop(.55,'#123a5c');g.addColorStop(1,sh.c);return SGR[k]=g}
-function shipPath(id){
-  x.beginPath();
-  if(id=='phantom'){x.moveTo(22,0);x.lineTo(-12,-10);x.lineTo(-5,0);x.lineTo(-12,10)}
-  else if(id=='bulwark'){x.moveTo(17,0);x.lineTo(7,-16);x.lineTo(-14,-16);x.lineTo(-9,0);x.lineTo(-14,16);x.lineTo(7,16)}
-  else{x.moveTo(19,0);x.lineTo(-14,-14);x.lineTo(-7,0);x.lineTo(-14,14)}
-  x.closePath();
+function shipGrad(sh){const k=sh.id+sh.c+sh.hull;if(SGR[k])return SGR[k];const g=x.createLinearGradient(-16,0,20,0);g.addColorStop(0,'#081428');g.addColorStop(.55,sh.hull||'#123a5c');g.addColorStop(1,sh.c);return SGR[k]=g}
+function shipPath(id,c){c=c||x;c.beginPath();
+ if(id=='phantom'){c.moveTo(22,0);c.lineTo(-12,-10);c.lineTo(-5,0);c.lineTo(-12,10)}
+ else if(id=='bulwark'){c.moveTo(17,0);c.lineTo(7,-16);c.lineTo(-14,-16);c.lineTo(-9,0);c.lineTo(-14,16);c.lineTo(7,16)}
+ else{c.moveTo(19,0);c.lineTo(-14,-14);c.lineTo(-7,0);c.lineTo(-14,14)}
+ c.closePath();
+}
+/* mini ship picture for skin buttons: draws the given ship shape in the skin's style */
+function skinPreview(cv2,shipId,sk,baseC){
+ const g=cv2.getContext('2d');g.clearRect(0,0,cv2.width,cv2.height);
+ g.save();g.translate(cv2.width/2,cv2.height/2);
+ const edge=sk.c||baseC,hull=sk.hull||'#123a5c';
+ const gr=g.createLinearGradient(-16,0,20,0);gr.addColorStop(0,'#081428');gr.addColorStop(.55,hull);gr.addColorStop(1,edge);
+ shipPath(shipId,g);g.fillStyle=gr;g.fill();g.lineWidth=2.5;g.strokeStyle=edge;g.stroke();
+ g.fillStyle=sk.cock||'#fff';g.beginPath();g.arc(2,0,4,0,TAU);g.fill();
+ g.restore();
 }
 function draw(){
   if(window.R3&&R3.on){x.setTransform(DPR,0,0,DPR,0,0);x.clearRect(0,0,W,H+HUDH);x.setTransform(DPR,0,0,DPR,0,HUDH*DPR);drawOver2D();if(P&&MAP.id=='dark'&&mode!='menu'&&mode!='select')drawDark();drawTail(.45);drawHUD();return}
@@ -1066,10 +1084,10 @@ function draw(){
       x.globalCompositeOperation='lighter';glow(P.x,P.y,26,sc,.16);if(P.act>0&&SHIP.id=='striker')glow(P.x,P.y,50,sc,.1+.05*Math.sin(t*.4));x.globalCompositeOperation='source-over';
       if(P.act>0&&SHIP.id=='bulwark'){x.globalAlpha=.1;x.fillStyle=sc;x.beginPath();x.arc(P.x,P.y,36,0,TAU);x.fill();x.globalAlpha=.3+.15*Math.sin(t*.5);x.strokeStyle=sc;x.lineWidth=2;x.stroke();x.globalAlpha=1}
       x.save();x.translate(P.x,P.y);x.rotate(P.aim);
-      if(mv){x.globalCompositeOperation='lighter';glow(-20,0,10+Math.random()*3,'#ffb347',.45);glow(-30,0,7,'#ff6b3d',.3);x.globalCompositeOperation='source-over'}
+      if(mv){x.globalCompositeOperation='lighter';glow(-20,0,10+Math.random()*3,SHIP.flame||'#ffb347',.45);glow(-30,0,7,'#ff6b3d',.3);x.globalCompositeOperation='source-over'}
       x.fillStyle=blink?'#fff':shipGrad(SHIP);x.strokeStyle=sc;x.lineJoin='round';
       shipPath(SHIP.id);x.fill();x.lineWidth=2;x.stroke();
-      x.fillStyle='#fff';x.beginPath();x.arc(2,0,4,0,TAU);x.fill();
+      x.fillStyle=SHIP.cock||'#fff';x.beginPath();x.arc(2,0,4,0,TAU);x.fill();
       x.restore();
       if(P.inv>0){x.strokeStyle=`rgba(255,255,255,${Math.min(1,P.inv/20)*.45})`;x.lineWidth=2;x.beginPath();x.arc(P.x,P.y,27,0,TAU);x.stroke()}
       if(P.dcd>0){x.strokeStyle='rgba(255,255,255,.45)';x.lineWidth=2;x.beginPath();x.arc(P.x,P.y,34,-Math.PI/2,-Math.PI/2+TAU*(1-P.dcd/S.dc));x.stroke()}
@@ -1309,14 +1327,14 @@ const add=o=>{scene.add(o);return o};
 const HULL={striker:[[19,0],[-14,-14],[-7,0],[-14,14]],phantom:[[22,0],[-12,-10],[-5,0],[-12,10]],bulwark:[[17,0],[7,-16],[-14,-16],[-9,0],[-14,16],[7,16]]};
 const ships={};
 function shipMesh(sh){
-  const ck=sh.id+sh.c;if(ships[ck])return ships[ck];
+  const ck=sh.id+sh.c+(sh.flame||'');if(ships[ck])return ships[ck];
   const s=new THREE.Shape();HULL[sh.id].forEach(([a,b],i)=>i?s.lineTo(a,-b):s.moveTo(a,-b));s.closePath();
   const geo=new THREE.ExtrudeGeometry(s,{depth:5,bevelEnabled:true,bevelThickness:2.5,bevelSize:1.6,bevelSegments:3});
   const g=new THREE.Group();
   const body=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:0x2c3a58,metalness:.85,roughness:.25,emissive:C(sh.c),emissiveIntensity:.07}));body.castShadow=true;g.add(body);
   g.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo,30),new THREE.LineBasicMaterial({color:C(sh.c,1.2)})));
   const pit=new THREE.Mesh(new THREE.SphereGeometry(3.6,16,10),new THREE.MeshBasicMaterial({color:C('#ffffff',1.4)}));pit.position.set(3,0,8);g.add(pit);
-  const fl=new THREE.Mesh(new THREE.ConeGeometry(4.5,18,14),new THREE.MeshBasicMaterial({color:C('#ffa040',2),transparent:true,opacity:.55,blending:THREE.AdditiveBlending,depthWrite:false}));
+  const fl=new THREE.Mesh(new THREE.ConeGeometry(4.5,18,14),new THREE.MeshBasicMaterial({color:C(sh.flame||'#ffa040',2),transparent:true,opacity:.55,blending:THREE.AdditiveBlending,depthWrite:false}));
   fl.rotation.z=Math.PI/2;fl.position.set(-20,0,4);g.add(fl);g.userData.fl=fl;
   const sh2=new THREE.Mesh(new THREE.SphereGeometry(36,32,16),new THREE.MeshBasicMaterial({color:C(sh.c,1),transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));g.add(sh2);g.userData.sh=sh2;
   g.visible=false;scene.add(g);return ships[ck]=g;
