@@ -169,7 +169,7 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 /* ships: each has a passive (pn/pd) and an active ability (an/ad, cooldown acd in frames) */
 const SHIPS=[
   {id:'striker',n:'Striker',tag:'BALANCED',c:'#00e5ff',hp:50,sp:2.9,cd:22,dmg:1,dc:95,ar:1,acd:840,
-   pn:'Overdrive',pd:'Every kill cuts 0.25s off your ability cooldown.',an:'Bullet Storm',ad:'For 4s, fire 30% faster with +1 shot.'},
+   pn:'Overdrive',pd:'Every kill cuts 0.25s off your ability cooldown.',an:'Bullet Storm',ad:'For 4.5s, fire 40% faster with +1 shot.'},
  {id:'phantom',n:'Phantom',tag:'FAST & FRAGILE',c:'#c77dff',hp:35,sp:3.4,cd:19,dmg:1,dc:65,ar:1,acd:420,
   pn:'Shadow Step',pd:'Dash recharges faster and slices enemies you pass through for 3x damage.',an:'Phase Blink',ad:'Teleport to the cursor, blasting enemies and shots around you.'},
  {id:'bulwark',n:'Bulwark',tag:'HEAVY TANK',c:'#ffb020',hp:85,sp:2.45,cd:26,dmg:1.5,dc:120,ar:.85,acd:780,
@@ -516,7 +516,7 @@ function renderSel(){
   const sh=$('ships');sh.innerHTML='';
   SHIPS.forEach((s,i)=>{
     const b=document.createElement('button');b.className='card'+(i==shipI?' on':'');b.style.setProperty('--rc',s.c);
-    b.dataset.tip=s.n+' ('+s.tag+'): passive '+s.pn+' — '+s.pd+' Active '+s.an+' (E): '+s.ad;
+    b.dataset.tip='Passive '+s.pn+' — '+s.pd;
     b.innerHTML='<i>'+(i+1)+'. '+s.tag+'</i><b>'+s.n+'</b><small>'+s.hp+' HP</small><small><u>[E] '+s.an+'</u><br>'+s.ad+'</small>';
     b.onclick=()=>{shipI=i;renderSel()};sh.appendChild(b);
   });
@@ -730,7 +730,7 @@ function dronesBlock(b){for(let k=0;k<S.bl;k++){const [dx,dy]=droneAt(k);if(Math
 function shoot(a,o){R.shots++;bu.push(Object.assign({x:P.x,y:P.y,vx:Math.cos(a)*8,vy:Math.sin(a)*8,pr:S.pierce,l:S.rg,h:new Set(),rc:S.ric+(S.syn.seek?2:0)},o))}
 function useAbility(){
   P.acd=SHIP.acd;sfx('abil');
-  if(SHIP.id=='striker'){P.act=240;ft.push({x:P.x,y:P.y-30,s:'BULLET STORM',l:50,c:SHIP.c})}
+  if(SHIP.id=='striker'){P.act=270;ft.push({x:P.x,y:P.y-30,s:'BULLET STORM',l:50,c:SHIP.c})}
   else if(SHIP.id=='phantom'){
     const tx=clamp(mx,20,W-20),ty=clamp(my,20,H-20),R=120;
     burst(P.x,P.y,20,SHIP.c,5);P.x=tx;P.y=ty;P.inv=Math.max(P.inv,30);
@@ -782,7 +782,7 @@ function upd(d){
   if(mouseHeld&&mode=='play')firing=true;
   if((firing||mouseHeld||S.auto)&&fireT<=0){
     const st=SHIP.id=='striker'&&P.act>0,n=S.multi+(st?1:0);
-    fireT=st?S.cd*.7:S.cd;sfx('shoot');
+    fireT=st?S.cd*.6:S.cd;sfx('shoot');
     for(let i=0;i<n;i++)shoot(P.aim+(i-(n-1)/2)*.17);
   }
   const bdm=S.syn.rail?1.5:1;
