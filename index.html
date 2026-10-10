@@ -55,6 +55,7 @@ button:disabled{opacity:.35;cursor:default}
 #stats .syn{width:100%;font-size:clamp(10px,1.15vw,13px);opacity:.7}
 #stats .syn .on{color:#ffd23f;font-weight:700}
 #shb{display:flex;gap:14px}
+#fsb{position:fixed;top:10px;right:10px;z-index:10}
 #ib{max-height:60%;overflow:auto;width:88%;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;text-align:left}
 .it{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.45}
 .it b{display:block;font-size:15px;margin-bottom:2px}.it i{font-style:normal;font-size:20px;margin-right:6px}.it.lock{opacity:.38}.it small{opacity:.75}
@@ -73,6 +74,7 @@ button:disabled{opacity:.35;cursor:default}
 </style>
 </head>
 <body>
+<button id="fsb" class="small" title="Toggle fullscreen">⛶</button>
 <div id="wrap">
 <canvas id="c" width="1200" height="830"></canvas>
 <div class="ov" id="ov"><h1 id="t">Neon Waves</h1><p id="m">Survive waves of neon enemies. Every kill earns money; spend it on upgrades between waves. Beat 4 bosses to win.</p><p class="hint">WASD move · Mouse aim · Hold click shoot · Space dash · E ability · P pause · M sound</p><p id="bl"></p><div class="menu" id="tbtn"><button id="b"><span class="ic">▶</span>Start Game</button><button id="be"><span class="ic">∞</span>Endless</button><button id="bach"><span class="ic">★</span>Achievements</button><button id="bset"><span class="ic">⚙</span>Settings</button><button id="bex"><span class="ic">⏻</span>Exit Game</button></div><div class="row" id="dbtn" style="display:none"><button id="br">Play Again</button><button id="bm">Main Menu</button></div><p id="lk" class="hint" style="opacity:.6;font-size:13px"></p><div id="ver"></div></div>
@@ -126,11 +128,13 @@ function earnShards(win){const b=R.bosses||0;let s=1+Math.floor(wave/4)+Math.flo
 function metaBoxHTML(got){
   const sk=SKINS.map(q=>{const own=(META.owned||[]).includes(q.id),on=META.skin==q.id;
     const lbl=on?q.n+' ✓':own?q.n:'🔒 '+q.n+' ('+q.cost+'✦)';
-    return '<button class="small" data-skin="'+q.id+'"'+(on?' disabled':'')+(q.c?' style="border-color:'+q.c+'"':'')+'>'+lbl+'</button>'}).join('');
+    const tip=on?q.n+' is equipped (color only, no stats)':own?'Click to fly in '+q.n+' (color only, no stats)':'LOCKED: finish runs to earn ✦ shards (waves + kills + bosses + victories, plus rare gold tokens in game). '+q.n+' costs '+q.cost+'✦ — buy it here';
+    return '<button class="small" data-skin="'+q.id+'"'+(on?' disabled':'')+(q.c?' style="border-color:'+q.c+'"':'')+' title="'+tip+'">'+lbl+'</button>'}).join('');
   const pk=PERKS.map(q=>{const lv=(META.perks||{})[q.id]||0,mx=lv>=q.max;
     const lbl=mx?q.n+' MAX':(lv>0?q.n+' '+lv+'/'+q.max+' ('+q.cost[lv]+'✦)':'🔒 '+q.n+' ('+q.cost[0]+'✦)');
-    return '<button class="small" data-perk="'+q.id+'"'+(mx?' disabled':'')+' title="'+q.d+'">'+lbl+'</button>'}).join('');
-  return '<div id="metabox" style="display:flex;flex-direction:column;gap:8px;align-items:center;max-width:92%"><div>✦ <b>'+META.sh+'</b> shards'+(got?' <span style="color:#7cff6b">(+'+got+' this run)</span>':'')+'</div><div class="row small">'+sk+'</div><div class="row small">'+pk+'</div><div class="hint" style="font-size:12px;opacity:.65">Skins are visual only · perks are tiny and permanent</div></div>';
+    const tip=mx?q.n+' is maxed ('+q.d+' × '+q.max+')':q.d+', level '+(lv+1)+' of '+q.max+'. Costs '+q.cost[lv]+'✦ — earn shards by finishing runs (waves + kills + bosses + victories)';
+    return '<button class="small" data-perk="'+q.id+'"'+(mx?' disabled':'')+' title="'+tip+'">'+lbl+'</button>'}).join('');
+  return '<div id="metabox" style="display:flex;flex-direction:column;gap:8px;align-items:center;max-width:94%"><div style="font-size:17px">✦ <b>'+META.sh+'</b> shards'+(got?' <span style="color:#7cff6b">(+'+got+' this run)</span>':'')+'</div><div class="hint" style="font-size:12px;opacity:.7">Earn ✦ by finishing runs: waves + kills + bosses + victories (Harder = more)</div><div style="font-size:13px;letter-spacing:1px;opacity:.8"><b>SHIP SKIN</b> — color only</div><div class="row small">'+sk+'</div><div style="font-size:13px;letter-spacing:1px;opacity:.8"><b>FOREVER UPGRADES</b> — tiny, work every run</div><div class="row small">'+pk+'</div></div>';
 }
 function wireMeta(){
   document.querySelectorAll('#metabox [data-skin]').forEach(b=>b.onclick=()=>{
@@ -515,7 +519,7 @@ function renderSel(){
   const kd=$('skins');kd.innerHTML='<b>SKIN</b>';
   SKINS.forEach(q=>{const own=(META.owned||[]).includes(q.id),on=META.skin==q.id;
     const b=document.createElement('button');b.className=on?'on':'';if(q.c)b.style.setProperty('--rc',q.c);
-    b.textContent=on?q.n+' ✓':own?q.n:'🔒 '+q.n+' '+q.cost+'✦';b.title=own?'Equip '+q.n:q.n+' costs '+q.cost+' shards (earned after runs)';
+    b.textContent=on?q.n+' ✓':own?q.n:'🔒 '+q.n+' '+q.cost+'✦';b.title=own?(on?q.n+' is equipped (color only)':'Equip '+q.n+' (color only)'):'LOCKED: '+q.n+' costs '+q.cost+'✦ — finish runs to earn shards, then buy it on the end-of-run screen';
     b.onclick=()=>{if(!(META.owned||[]).includes(q.id)){sfx('lock');return}META.skin=q.id;saveMetaAll();sfx('click');renderSel()};kd.appendChild(b)});
   renderSelShards();
   $('selh').textContent=gmode=='story'?'Choose your ship':'Endless · Choose your ship';
@@ -599,8 +603,9 @@ function kill(e){
   if(kills>=1000)ach('k1000');
   if(S.ls>0)heal(S.ls);
   if(SHIP.id=='striker')P.acd-=15;
-  if(B){gm.push({x:e.x,y:e.y,v:25,h:1});shake=18}
-  else if(Math.random()<.04)gm.push({x:e.x+8,y:e.y,v:15,h:1});
+  if(B){for(let i=0;i<2;i++)gm.push({x:e.x+(i?14:-14),y:e.y,v:1,h:1,tok:1});shake=18}
+  else if(e.el){if(Math.random()<.08)gm.push({x:e.x+8,y:e.y,v:1,h:1,tok:1})}
+  else if(Math.random()<.004)gm.push({x:e.x+8,y:e.y,v:1,h:1,tok:1});
   if(e.ty==6)for(let i=0;i<(e.el?3:2);i++)spawnAt(7,e.x+(i-1)*12,e.y);
 }
 function hit(e,d,cr){
@@ -684,9 +689,9 @@ function cleared(){
   const boss=wave%5==0,it=pendInt;pendInt=0;money+=it;
   if(it>0&&++R.interest>=5)ach('saver');if(R.waveHits==0&&wave>=3)ach('cleanwave');if(R.low)medal('close');if(wave>=10&&R.bought==0)ach('miser');if(gmode=='endless'&&wave>=30)ach('void30');saveMeta();
   gain(10+wave*3);heal(8+S.rec);sk=[];eb=[];lava=[];firing=false;mouseHeld=false;
-  /* no black screen between waves: collect drops instantly and go straight to shop/victory */
-  for(const g of gm)if(!g.pack){heal(g.v);g.t=1}
-  gm=gm.filter(g=>!g.t);
+  /* no black screen between waves: shard tokens are collected instantly, then straight to shop/victory */
+  for(const g of gm)if(g.tok&&!g.t){g.t=1;META.sh++;ft.push({x:g.x,y:g.y-14,s:'+1✦',l:46,c:'#ffd23f'})}
+  gm=gm.filter(g=>!g.t);saveMetaAll();
   const fin=gmode=='story'&&wave==STORY_WAVES;
   sfx(boss?'bossdown':'clear');if(boss)shake=20;
   if(fin)victory();else openShop();
@@ -894,7 +899,8 @@ function upd(d){
     const q=Math.hypot(P.x-g.x,P.y-g.y);
     if(g.pack){g.life-=d;if(g.life<=0)g.t=1}
     if((q<80&&!g.pack)||g.m){const a=Math.atan2(P.y-g.y,P.x-g.x);g.x+=Math.cos(a)*7*d;g.y+=Math.sin(a)*7*d}
-    if(q<(g.pack?26:18)&&(!g.pack||P.hp<P.mx)){g.t=1;const h=Math.min(g.v,P.mx-P.hp);P.hp+=h;if(g.pack){ft.push({x:g.x,y:g.y-14,s:'+'+Math.ceil(h)+' HP',l:46,c:'#7cff6b'});burst(g.x,g.y,14,'#7cff6b',4);sfx('heal')}}
+    if(g.tok){if(q<26){g.t=1;META.sh++;saveMetaAll();ft.push({x:g.x,y:g.y-14,s:'+1✦ shard',l:46,c:'#ffd23f'});burst(g.x,g.y,10,'#ffd23f',4);sfx('buy')}}
+    else if(q<(g.pack?26:18)&&(!g.pack||P.hp<P.mx)){g.t=1;const h=Math.min(g.v,P.mx-P.hp);P.hp+=h;if(g.pack){ft.push({x:g.x,y:g.y-14,s:'+'+Math.ceil(h)+' HP',l:46,c:'#7cff6b'});burst(g.x,g.y,14,'#7cff6b',4);sfx('heal')}}
   }
   gm=gm.filter(g=>!g.t);
   P.inv-=d;
@@ -1023,7 +1029,7 @@ function draw(){
         x.globalCompositeOperation='lighter';glow(q.x,q.y,34*pu,'#7cff6b',.35*al);x.globalCompositeOperation='source-over';
         x.globalAlpha=al;x.fillStyle='rgba(8,30,18,.92)';x.strokeStyle='#7cff6b';x.lineWidth=3;x.beginPath();x.arc(q.x,q.y,18*pu,0,TAU);x.fill();x.stroke();
         x.fillStyle='#7cff6b';x.fillRect(q.x-3.5,q.y-10,7,20);x.fillRect(q.x-10,q.y-3.5,20,7);x.globalAlpha=1;
-      }else{x.fillStyle='#ff6b9d';x.globalAlpha=.3;x.beginPath();x.arc(q.x,q.y,13,0,TAU);x.fill();x.globalAlpha=1;x.beginPath();x.arc(q.x,q.y,6,0,TAU);x.fill()}
+      }else{const pu=1+.12*Math.sin(t*.2);x.globalCompositeOperation='lighter';glow(q.x,q.y,20*pu,'#ffd23f',.5);x.globalCompositeOperation='source-over';x.save();x.translate(q.x,q.y);x.rotate(Math.PI/4);x.fillStyle='#ffd23f';x.fillRect(-6*pu,-6*pu,12*pu,12*pu);x.strokeStyle='#fff3c4';x.lineWidth=2;x.strokeRect(-6*pu,-6*pu,12*pu,12*pu);x.restore()}
     }
     drawMapBack();
     for(const s of sk){const q=1-s.t/70;x.strokeStyle='#ff3d6e';x.lineWidth=3;x.globalAlpha=.5+.4*Math.sin(t*.6);x.beginPath();x.arc(s.x,s.y,s.r,0,TAU);x.stroke();x.globalAlpha=.28;x.fillStyle='#ff3d6e';x.beginPath();x.arc(s.x,s.y,s.r*q,0,TAU);x.fill();x.globalAlpha=1}
@@ -1214,6 +1220,7 @@ $('wNew').onclick=()=>{diffI=Math.min(2,diffI+1);openSelect('story')};
 $('wMenu').onclick=showTitle;
 $('bach').onclick=()=>{au();sfx('click');showInfo('ach')};$('tach').onclick=()=>showInfo('ach');$('tcod').onclick=()=>showInfo('cdx');
 $('bset').onclick=()=>{au();sfx('click');showSettings()};$('sback').onclick=()=>{$('set').style.display='none';ov.style.display='flex'};$('bex').onclick=exitGame;$('iback').onclick=()=>{$('info').style.display='none';ov.style.display='flex'};
+$('fsb').onclick=()=>{au();sfx('click');try{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen()}catch(e){}};
 reset();showTitle();banner=null;
 requestAnimationFrame(loop);
 </script>
