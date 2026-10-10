@@ -169,7 +169,7 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 /* ships: each has a passive (pn/pd) and an active ability (an/ad, cooldown acd in frames) */
 const SHIPS=[
   {id:'striker',n:'Striker',tag:'BALANCED',c:'#00e5ff',hp:50,sp:2.9,cd:22,dmg:1,dc:95,ar:1,acd:840,
-   pn:'Overdrive',pd:'Every kill cuts 0.25s off your ability cooldown.',an:'Bullet Storm',ad:'For 4.5s, fire 40% faster with +1 shot.'},
+   pn:'Overdrive',pd:'Kills cut 0.05s off your ability cooldown, up to 7s.',an:'Bullet Storm',ad:'For 4.5s, fire 40% faster with +1 shot.'},
  {id:'phantom',n:'Phantom',tag:'FAST & FRAGILE',c:'#c77dff',hp:35,sp:3.4,cd:19,dmg:1,dc:65,ar:1,acd:420,
   pn:'Shadow Step',pd:'Dash recharges faster and slices enemies you pass through for 3x damage.',an:'Phase Blink',ad:'Teleport to the cursor, blasting enemies and shots around you.'},
  {id:'bulwark',n:'Bulwark',tag:'HEAVY TANK',c:'#ffb020',hp:85,sp:2.45,cd:26,dmg:1.5,dc:120,ar:.85,acd:780,
@@ -498,7 +498,7 @@ function reset(){
  P={x:W/2,y:H/2,hp:0,mx:Math.round(SHIP.hp*G.hpm)+4*(_pk.hp||0),inv:0,dash:0,dcd:0,fx:1,fy:0,aim:0,acd:0,act:0,did:0};P.hp=P.mx;
  S={dmg:SHIP.dmg*G.dmm,cd:SHIP.cd,multi:1,pierce:0,sp:SHIP.sp*Math.pow(1.02,_pk.sp||0),bl:0,rg:70,dc:SHIP.dc,ar:SHIP.ar,mm:G.mm*D.mm,mmb:0,own:{},rec:0,nova:0,rev:0,auto:0,ric:0,hom:0,crit:0,ls:0,ds:0,fr:0,syn:{}};
  bu=[];en=[];eb=[];gm=[];pt=[];sk=[];rings=[];ft=[];healT=600;healN=0;money=8*(_pk.money||0);t=0;kills=0;wave=0;phase='break';brk=100;queue=[];spT=0;skT=120;fireT=0;ba=0;novaT=200;flash=0;firing=false;mouseHeld=false;mapI=-1;MAP=MAPS[0];rocks=[];lava=[];arenaR=ARMAX;pendInt=0;bossIntro=null;hstop=0;cflash=0;
- R={shots:0,hits:0,dmg:0,hitsTaken:0,waveHits:0,bossHits:0,bossDash:0,bought:0,interest:0,skip:0,streak:0,dashKW:0,bladeK:0,reflK:0,bosses:0,low:false,med:{}};
+ R={shots:0,hits:0,dmg:0,hitsTaken:0,waveHits:0,bossHits:0,bossDash:0,bought:0,interest:0,skip:0,streak:0,dashKW:0,bladeK:0,reflK:0,bosses:0,od:0,low:false,med:{}};
  banner={t:'Get Ready',s:runName(),a:1.6};
 }
 function runName(){return (gmode=='story'?'Story':'Endless')+' · '+D.n+' · '+SHIP.n+(modI?' · '+G.n:'')}
@@ -620,7 +620,7 @@ function kill(e){
   if(kSrc=='dash'&&++R.dashKW>=5)medal('dash');if(kSrc=='blade'&&++R.bladeK>=25)medal('blade');if(kSrc=='reflect'&&++R.reflK>=10)medal('reflect');
   if(kills>=1000)ach('k1000');
   if(S.ls>0)heal(S.ls);
-  if(SHIP.id=='striker')P.acd-=15;
+  if(SHIP.id=='striker'&&P.acd>0){const cut=Math.min(3,420-(R.od||0));if(cut>0){P.acd-=cut;R.od=(R.od||0)+cut}}
   if(B){for(let i=0;i<2;i++)gm.push({x:e.x+(i?14:-14),y:e.y,v:1,h:1,tok:1});shake=18}
   else if(e.el){if(Math.random()<.08)gm.push({x:e.x+8,y:e.y,v:1,h:1,tok:1})}
   else if(Math.random()<.004)gm.push({x:e.x+8,y:e.y,v:1,h:1,tok:1});
@@ -730,7 +730,7 @@ function dronesBlock(b){for(let k=0;k<S.bl;k++){const [dx,dy]=droneAt(k);if(Math
 function shoot(a,o){R.shots++;bu.push(Object.assign({x:P.x,y:P.y,vx:Math.cos(a)*8,vy:Math.sin(a)*8,pr:S.pierce,l:S.rg,h:new Set(),rc:S.ric+(S.syn.seek?2:0)},o))}
 function useAbility(){
   P.acd=SHIP.acd;sfx('abil');
-  if(SHIP.id=='striker'){P.act=270;ft.push({x:P.x,y:P.y-30,s:'BULLET STORM',l:50,c:SHIP.c})}
+  if(SHIP.id=='striker'){P.act=270;R.od=0;ft.push({x:P.x,y:P.y-30,s:'BULLET STORM',l:50,c:SHIP.c})}
   else if(SHIP.id=='phantom'){
     const tx=clamp(mx,20,W-20),ty=clamp(my,20,H-20),R=120;
     burst(P.x,P.y,20,SHIP.c,5);P.x=tx;P.y=ty;P.inv=Math.max(P.inv,30);
