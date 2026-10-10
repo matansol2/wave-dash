@@ -128,7 +128,7 @@ const PERKS=[
 let META=lj('waves-meta',{sh:0,skin:'default',owned:['default'],perks:{hp:0,sp:0,money:0}});
 if(!META.owned)META.owned=['default'];if(!META.perks)META.perks={hp:0,sp:0,money:0};
 function saveMetaAll(){saveMeta();ls('waves-meta',JSON.stringify(META))}
-function earnShards(win){const b=R.bosses||0;let s=1+Math.floor(wave/4)+Math.floor(kills/300)+b*2+(win?5:0);s=Math.max(1,Math.round(s*[.75,1,1.25][diffI]));META.sh+=s;saveMetaAll();return s}
+function earnShards(win){const b=R.bosses||0;let s=1+Math.floor(wave/4)+Math.floor(kills/300)+b*2+(win?5:0);s=Math.max(1,Math.round(s*[.75,1,1.25][diffI]*(G.shm||1)));META.sh+=s;saveMetaAll();return s}
 function metaBoxHTML(got){
   const sk=SKINS.map(q=>{const own=(META.owned||[]).includes(q.id),on=META.skin==q.id;
     const lbl='<canvas width="112" height="76" data-pv="'+q.id+'" style="display:block;margin:0 auto 2px;width:56px;height:38px"></canvas><span>'+(on?q.n+' ✓':own?q.n:'🔒 '+q.n+' ('+q.cost+'✦)')+'</span>';
@@ -177,10 +177,10 @@ const SHIPS=[
 ];
 /* run modifiers picked on the ship screen */
 const MODS=[
- {n:'Standard',d:'The normal game.',hpm:1,dmm:1,enm:1,mm:1,efr:1},
- {n:'Swarm',d:'40% more enemies per wave, +20% money.',hpm:1,dmm:1,enm:1.4,mm:1.2,efr:1},
- {n:'Glass Cannon',d:'Half max HP, double damage.',hpm:.5,dmm:2,enm:1,mm:1,efr:1},
- {n:'Bullet Hell',d:'Enemies shoot 50% more often, 15% more money.',hpm:1,dmm:1,enm:1,mm:1.15,efr:.67}
+ {n:'Standard',d:'The normal game.',hpm:1,dmm:1,enm:1,mm:1,efr:1,shm:1},
+ {n:'Swarm',d:'40% more enemies per wave, +20% money, +20% shards.',hpm:1,dmm:1,enm:1.4,mm:1.2,efr:1,shm:1.2},
+ {n:'Glass Cannon',d:'Half max HP, double damage, +10% shards.',hpm:.5,dmm:2,enm:1,mm:1,efr:1,shm:1.1},
+ {n:'Bullet Hell',d:'Enemies shoot 50% more often, 15% more money, +15% shards.',hpm:1,dmm:1,enm:1,mm:1.15,efr:.67,shm:1.15}
 ];
 /* enemies: 0 chaser, 1 dasher, 2 tank, 3 gunner, 4 exploder, 5 boss, 6 splitter, 7 splitling, 8 shielded, 9 healer, 10 blinker, 11 boss, 12 boss */
 const ED=[
