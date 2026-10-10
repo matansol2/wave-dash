@@ -37,7 +37,7 @@ button:disabled{opacity:.35;cursor:default}
 .cards .card:hover:not(:disabled){background:rgba(255,255,255,.12)}
 .cards .card.poor{opacity:.45}
 .cards .card:disabled{opacity:.25;cursor:default}
-#ships .card{max-width:270px;padding:12px 10px;gap:6px;opacity:.6}
+#ships .card{max-width:270px;padding:12px 10px;gap:6px;opacity:1}
 #ships .card.on{opacity:1;background:rgba(255,255,255,.13);transform:scale(1.04)}
 #ships .card small{min-height:0;font-size:clamp(11px,1.25vw,14px);line-height:1.35}
 #ships .card small u{text-decoration:none;color:var(--rc);font-weight:700}
@@ -47,8 +47,8 @@ button:disabled{opacity:.35;cursor:default}
 .row.pick button.lockd:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);white-space:nowrap;background:#0c0822;border:1px solid #ffd23f;color:#ffd23f;font-size:13px;font-weight:600;padding:6px 12px;border-radius:10px;pointer-events:none;z-index:10;opacity:1;box-shadow:0 4px 18px rgba(0,0,0,.9)}
 /* same yellow tooltip box for skins and meta buttons */
 #skins.row.pick button,#mods.row.pick button{opacity:1}
-#skins button[data-tip],#metabox button[data-tip],#mods button[data-tip]{position:relative}
-#skins button[data-tip]:hover::after,#metabox button[data-tip]:hover::after,#mods button[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:max-content;max-width:260px;white-space:normal;text-align:center;background:#0c0822;border:1px solid #ffd23f;color:#ffd23f;font-size:13px;font-weight:600;padding:6px 12px;border-radius:10px;pointer-events:none;z-index:10;opacity:1;box-shadow:0 4px 18px rgba(0,0,0,.9)}
+#skins button[data-tip],#metabox button[data-tip],#mods button[data-tip],#ships button[data-tip]{position:relative}
+#skins button[data-tip]:hover::after,#metabox button[data-tip]:hover::after,#mods button[data-tip]:hover::after,#ships button[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:max-content;max-width:260px;white-space:normal;text-align:center;background:#0c0822;border:1px solid #ffd23f;color:#ffd23f;font-size:13px;font-weight:600;padding:6px 12px;border-radius:10px;pointer-events:none;z-index:10;opacity:1;box-shadow:0 4px 18px rgba(0,0,0,.9)}
 #sel,#shop{gap:10px}
 #shop{background:rgba(5,3,18,.82);backdrop-filter:none;-webkit-backdrop-filter:none}
 #sel .hint,#shop .hint{font-size:clamp(12px,1.3vw,14px);opacity:.7}
@@ -516,7 +516,7 @@ function renderSel(){
   const sh=$('ships');sh.innerHTML='';
   SHIPS.forEach((s,i)=>{
     const b=document.createElement('button');b.className='card'+(i==shipI?' on':'');b.style.setProperty('--rc',s.c);
-    b.title='Passive, '+s.pn+': '+s.pd;
+    b.dataset.tip=s.n+' ('+s.tag+'): passive '+s.pn+' — '+s.pd+' Active '+s.an+' (E): '+s.ad;
     b.innerHTML='<i>'+(i+1)+'. '+s.tag+'</i><b>'+s.n+'</b><small>'+s.hp+' HP</small><small><u>[E] '+s.an+'</u><br>'+s.ad+'</small>';
     b.onclick=()=>{shipI=i;renderSel()};sh.appendChild(b);
   });
